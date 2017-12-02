@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+html {
+	height:100%;
+}
+body {
+    display: flex;
+    flex-direction:column;
+    height:100vh;
+    overflow-x:hidden;
+    background-color:#F5F5F5;
+	color:#192231;
+}
+header {
+	flex-shrink:0;
+	padding-top:10px;
+	padding-left:10px;
+	padding-bottom:5px;
+	border-bottom: solid 1px;
+	background-color:#A1D6E2;
+}
+h1 {
+	margin-left: 2%;
+	font-size:2vmax;
+}
+h2 {
+	margin-left: 3%;
+	font-size:1.8vmax;
+}
+p {
+	margin-left: 4%;
+	font-size:1.2vmax;
+	line-height:120%;
+}
+ul {
+	margin-left: 6%;
+}
+h1.title {
+	font-size:2.2vmax;
+	padding:0;
+	margin:0;
+	font-family:"Arial Black";
+	color:#192231;
+}
+header p {
+	font-size:1.5vmax;
+	padding:0 0 0 1%;
+	margin:0;
+	font-family:"Arial Black";
+	color:#192231;
+}
+header a {
+	color:#626D71;
+	text-decoration:none;
+}
+header a:hover {
+	color:#FFFFFF;
+	text-decoration:underline;
+	cursor:pointer;
+}
+#bodyTxt {
+	margin-left:2%;
+	margin-right:30%;
+}
+</style>
+</head>
+<body>
+<article>
+<header><h1 class="title">Scottish statutory instrument calculator</h1>
+	<nav><p><a href="versionx.html">calculator</a> || <a>gough.fraser@gmail.com</a></p></nav>
+</header>
+<div id="bodyTxt">
+<h1>Calculator modes</h1>
+<h2>Find latest laying date</h2>
+<p>In this mode, the calculator finds the latest date on which an instrument (or draft instrument) can be laid before the Parliament if it is to come into force on the chosen coming into force date after the required number of laying days.</p>
+
+<h2>Find earliest coming into force date</h2>
+<p>In this mode, the calculator finds the earliest date that an instrument can come into force given the chosen:<ul><li>parliamentary procedure,</li><li>date for laying the instrument (or draft instrument) before the Parliament, and</li><li>required number of laying days.</li></ul></p>
+
+<h1>Advanced options</h1>
+<p>Normally, the calculator will proceed on the basis of certain default presumptions. These can be displaced using the options panel.</p>
+<h2>Clear laying days required</h2>
+<p>If checked, the date on which the instrument (or draft instrument) is laid before the Parliament will not be counted towards the required number of laying days.</p>
+<p>The general assumption is that the date the instrument is laid will not be counted as a laying day (i.e. it is generally assumed that clear laying days are required).</p>
+<p>The default exception, is when calculating the 40 day annulment period for instruments subject to the negative procedure. This is treated as an exception because section 28(3) of the Interpretation and Legislative Reform (Scotland) Act 2010 states that the 40 day period begins with the day the instrument is laid before the Parliament.</p>
+
+<h2>Gap between making and coming into force required</h2>
+<p>This option is only relevant to instruments subject to the affirmative procedure.</p>
+<p>By default the calculator assumes a gap is required.</p>
+<p>An instrument subject to the affirmative procedure can only be made after it has lain in draft before the Parliament for the required number of laying days. And, normally, an instrument will not be brought into force until the day after the day it is made.</p>
+<p>Therefore, if this option is chosen when calculating the earliest coming into force date for an instrument subject to the affirmative procedure, the calculator will first find the earliest date the instrument can be made and add a day to that to give the earliest coming into force date.</p>
+
+<h2>Instrument cannot be made on weekend</h2>
+<p>This option is only relevant to instruments subject to the affirmative procedure.</p>
+<p>By default the calculator assumes instruments cannot be made on weekends.</p>
+<p>To find the earliest coming into force date for an instrument subject to the affirmative procedure, the calculator first has to find the earliest date on which the instrument can be made having lain in draft for the required number of laying days. When this option is chosen, the calculator will find the earliest date the instrument could notionally be made and then find the first weekday after that. That weekday is then treated as the earliest date the instrument can be made.</p>
+
+<h1>Definitions</h1>
+<h2>Parliamentary procedure</h2><p>The calculator deals with<ul><li>the negative procedure &#40;as defined by section 28 of the Interpretation and Legislative Reform &#40;Scotland&#41; Act 2010&#41;, and</li><li>the affirmative procedure &#40;as defined by section 29 of that Act&#41;.</li></ul></p><p>For the purposes of calculating dates, an instrument subject to no procedure apart from the bare laying requirement &#40;section 30 of the Interpretation and Legislative Reform &#40;Scotland&#41; Act 2010&#41;, can be treated as if it were subject to the negative procedure.</p>
+<h2>Laying days</h2><p>For the purpose of calculating whether an instrument, or draft instrument, has lain before the Parliament for the required period, non-laying days are ignored. A non-laying day is any day which falls within a period of 4 or more consecutive days in which the Parliament is in recess or dissolved.</p>
+</div>
+</article>
+</body>
+</html>
