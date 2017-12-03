@@ -1,0 +1,191 @@
+html {
+	height:100%;
+}
+body {
+    display: flex;
+    flex-direction:column;
+    height:100vh;
+    overflow-x:hidden;
+    background-color:#F5F5F5;
+	color:#192231;
+}
+#appCore {
+	flex: 1 0 auto;
+	padding:20px;
+}
+#footer {
+	flex-shrink:0;
+	padding:20px;
+	border-top: solid 1px;
+	background-color:#A1D6E2;
+}
+#header {
+	flex-shrink:0;
+	padding-top:10px;
+	padding-left:10px;
+	padding-bottom:5px;
+	border-bottom: solid 1px;
+	background-color:#A1D6E2;
+}
+h1 {
+	font-size:2.2vmax;
+	padding:0;
+	margin:0;
+	font-family:"Arial Black";
+	color:#192231;
+}
+#header p {
+	font-size:1.5vmax;
+	padding:0 0 0 1%;
+	margin:0;
+	font-family:"Arial Black";
+	color:#192231;
+}
+#header a {
+	color:#626D71;
+	text-decoration:none;
+}
+#header a:hover {
+	color:#FFFFFF;
+	text-decoration:underline;
+	cursor:pointer;
+}
+.slidable {
+	position:absolute;
+	height:200px;
+	width:90%;
+	margin-top:5%;
+	-webkit-transition: 1s ease-in-out;
+    -moz-transition: 1s ease-in-out;
+    -o-transition: 1s ease-in-out; 
+    transition: 1s ease-in-out;
+}
+.holdLeft {
+    -ms-transform: translate(-150%, 0px); /* IE 9 */
+    -webkit-transform: translate(-150%, 0px); /* Safari */
+    transform: translate(-150%, 0px); /* Standard syntax */
+}
+.holdRight{
+    -ms-transform: translate(200%, 0px); /* IE 9 */
+    -webkit-transform: translate(200%, 0px); /* Safari */
+    transform: translate(200%, 0px); /* Standard syntax */
+}
+.clickable {
+	cursor:pointer;
+	color:#1995AD;
+}
+.clickable:hover {
+	text-decoration:underline;
+}
+.button {
+	border-radius:50%;
+	-webkit-transition: 250ms ease-in-out;
+    -moz-transition: 250ms ease-in-out;
+    -o-transition: 250ms ease-in-out;
+    transition: 250ms ease-in-out;
+}
+.buttonRotated {
+	-ms-transform: rotate(90deg);
+	-webkit-transform:rotate(90deg);
+	transform:rotate(90deg);
+}
+.recessDay {
+	background-color:hsla(0, 100%, 50%, 0.3);
+}
+.cDeskHoliday {
+	background-color:blue;
+}
+.recessDay.cDeskHoliday {
+	background-color:purple;
+}
+table {
+	margin-top:5%;
+	width:50%;
+	height:50%;
+	font-family:Helvetica;
+	color:#192231;
+}
+table a {
+	color:#192231;
+	text-decoration:none;
+}
+th, td {
+	padding:10px;
+	font-size:3vmax;
+	width:50%;
+	text-align:center;
+}
+th {
+	font-weight:normal;
+}	
+#calendarInternal {
+	display:flex;
+	align-items:center;
+	justify-content:center;
+	flex-direction:column;
+	color:#192231;
+	
+}
+#calendarControls {
+	display:flex;
+	align-items:center;
+	justify-content:center;
+}
+select {
+	font-size:3vmax;
+	font-family:Helvetica;
+	border-radius:10%;
+	min-width:50%;
+	text-align:center;
+	background-color:#FFFFFF;
+	color:#192231;
+}
+#appMain {
+	font-family:Helvetica;
+	font-size:4vmax;
+	line-height:1.4;
+	margin-left:1%;
+}
+#appOutput {
+	font-family:Helvetica;
+	font-size:4vmax;
+	line-height:1.4;
+	text-align:center;
+}
+#appOptions {
+	font-family:Helvetica;
+	font-size:2.2vmax;
+	color:#626D71;
+	margin-top:8%;
+}
+#numLayingDays {
+	font-family:Helvetica;
+	font-size:4vmax;
+	width:5vmax;
+	border:none;
+	background-color:#F5F5F5;
+	color:#1995AD;
+}
+#numLayingDays:hover {
+	text-decoration:underline;
+}
+.calFwBack {
+	font-family:Helvetica;
+	font-size:3vmax;
+	border-radius:70%;
+	background-color: #FFFFFF;
+	box-shadow: 0 3px 3px #999;
+}
+.calFwBack:active {
+	box-shadow:0 1px 3px #666;
+	transform: translateY(2px);
+}
+#btnDatBack {
+	margin-right:10%;
+}
+#btnDatFw {
+	margin-left:10%;
+}
+.calendarCol {
+	min-width:14%;
+}
