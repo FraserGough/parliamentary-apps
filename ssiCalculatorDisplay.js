@@ -1,15 +1,6 @@
 function slide() {
-	var elemAppContainer = document.getElementById("appContainer");
-	var elemCalendarContainer = document.getElementById("calendarContainer");
-	elemAppContainer.classList.toggle('holdLeft');
-	elemCalendarContainer.classList.toggle('holdRight');
-	if (elemAppContainer.classList.contains('holdLeft') == true) {
-		elemAppContainer.style.visibility = 'hidden';
-		elemCalendarContainer.style.visibility = 'visible';
-	} else {
-		elemAppContainer.style.visibility = 'visible';
-		elemCalendarContainer.style.visibility = 'hidden';
-	}
+	document.getElementById("appContainer").classList.toggle('holdLeft');
+	document.getElementById("calendarContainer").classList.toggle('holdRight');
 }
 function init() {
 	var txtOutput = "<p>The <span id='mode' class='clickable' onclick='updateAppMain(1)'>latest laying date</span> for an instrument subject to "
