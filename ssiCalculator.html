@@ -14,13 +14,16 @@
 		<div id="appOutput"><p>?</p></div>
 		<div id="appOutputExp"></div>
 		<div id="appOptions">
-			<div id='showHideOptions'<p>options <input  id="btnRevealOpts" class="button" type="button" value="&#8594" onclick="revealOpts()" /></p></div>
+		<p><input type="checkbox" id="chkUseDefault" onchange="showHideOpts()" checked /> use default options</p>
+		<!-- <div id='showHideOptions'<p>options <input  id="btnRevealOpts" class="button" type="button" value="&#8594" onclick="revealOpts()" /></p></div> -->
 			<div id='optionsPanel' style='display:none'>
 				<p><input type="checkbox" id="chkClearDays" onchange='calculateRelevantDate()'" /> laying days are to be clear</p>
-				<p><input type="checkbox" id="chkGapBtwnMk" onchange='calculateRelevantDate()' checked /> a gap is required between making and coming into force</p>
-				<p><input type="checkbox" id="chkNoWknds" onchange='calculateRelevantDate()' checked /> the instrument cannot be made on a weekend</p>
-				<p style='display:none'><input type="checkbox" id="chkGapBtwnVote" onchange='calculateRelevantDate()' checked /> the instrument cannot be made on the day it is approved in draft</p>
+				<div id='affirmativeOptionsPanel' style='display:none'>
+					<p><input type="checkbox" id="chkGapBtwnMk" onchange='calculateRelevantDate()' checked /> a gap is required between making and coming into force</p>
+					<p><input type="checkbox" id="chkNoWknds" onchange='calculateRelevantDate()' checked /> the instrument cannot be made on a weekend</p>
+				</div>
 			</div>
+			<!-- </div> -->
 		</div>
 	</div>
 	<div id="calendarContainer" class="slidable holdRight">

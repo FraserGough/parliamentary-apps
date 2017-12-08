@@ -33,10 +33,15 @@ function getRecessDates(xml) {
 
 function getCdeskClosureDates(xml) {
 	var xmlDoc = xml.responseXML;
+	var objClosedDay;
 	numberOfCdeskClosures = xmlDoc.getElementsByTagName('day').length;
 	arrayCdeskClosedDates = new Array(numberOfCdeskClosures);
 	for (var i = 0; i < numberOfCdeskClosures; i++) {
-		arrayCdeskClosedDates[i] = new Date(xmlDoc.getElementsByTagName('date')[i].childNodes[0].nodeValue);
+		objClosedDay = {
+			date: new Date(xmlDoc.getElementsByTagName('date')[i].childNodes[0].nodeValue),
+			time: xmlDoc.getElementsByTagName('time')[i].childNodes[0].nodeValue
+		};
+		arrayCdeskClosedDates[i] = objClosedDay;
 	}
 	writeCalendar();
 }
@@ -146,6 +151,8 @@ function calMarkSpecialDays(currentMonth, currentYear, daysInMonth) {
 		}
 		if (bolCDeskClosed == 1) {
 			document.getElementById("date" + i).classList.toggle('cDeskHoliday');
+		} else if (bolCDeskClosed > 1) {
+			document.getElementById("date" + i).classList.toggle('cDeskHalfHoliday');
 		}
 	}
 }
@@ -154,7 +161,7 @@ function dateIsRecess(currentDate) {
 	var intReturn = 0;
 	currentDate = new Date(currentDate);
 	for (i = 0; i < numberOfRecessPeriods; i++) {
-		if (currentDate >= arrayStartDates[i] && currentDate < arrayEndDates[i]) {
+		if (currentDate >= arrayStartDates[i] && currentDate <= arrayEndDates[i]) {
 			intReturn = 1;
 			break;
 		}
@@ -169,8 +176,17 @@ function dateIsCDeskClosed(currentDate) {
 		intReturn = 1;
 	} else {
 		for (i = 0; i < arrayCdeskClosedDates.length; i++) {
-			if (String(currentDate) == String(arrayCdeskClosedDates[i])) {
-				intReturn = 1;
+			if (String(currentDate) == String(arrayCdeskClosedDates[i].date)) {
+				if (arrayCdeskClosedDates[i].time == 0) {
+				//closed all day
+					intReturn = 1;
+				} else if (arrayCdeskClosedDates[i].time == 1) {
+				//closed am
+					intReturn = 2;
+				} else {
+				//closed pm
+					intReturn = 3;
+				}
 				break;
 			}
 		}
@@ -187,6 +203,8 @@ function fillDate(dateChosen) {
 		if (elem.classList.contains('cDeskHoliday') == true) {
 			alert('Instruments cannot be laid on days that the Office of the Clerk is closed.');
 			return;
+		} else if (elem.classList.contains('cDeskHalfHoliday') == true) {
+			alert('The Office of the Clerk is operating reduced hours on that day.');
 		}
 	}
 	var arrayMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -316,6 +334,7 @@ function calculateLayingDate(strChosenDate) {
 	var initialDate = new Date(dateChosen);
 	//count back required number of laying days
 	do { 
+		dateChosen.setDate(dateChosen.getDate() - 1);
 		if (dateIsRecess(dateChosen) == 0) {
 			intCountedDays = intCountedDays + 1;
 		} else {
@@ -327,7 +346,6 @@ function calculateLayingDate(strChosenDate) {
 			dateChosen = new Date(resumeDate);
 			strExp += " After counting back " + intCountedDays + " laying days, a recess is encountered which runs from " + formatDateOutput(arrayStartDates[recessEncountered], 0) + " to " + formatDateOutput(arrayEndDates[recessEncountered], 0) + ". "
 		}
-		dateChosen.setDate(dateChosen.getDate() - 1);
 	}
 	while (intCountedDays != intLayingPeriod);
 	if (recessEncountered == "") {
@@ -349,81 +367,20 @@ function calculateLayingDate(strChosenDate) {
 		strExp += ". But the Chamber Desk is not open that day and so the latest permissible laying date is " + formatDateOutput(dateChosen, 0);
 	}
 	//output
-	var strOutput = formatDateOutput(dateChosen, 1);
-	document.getElementById("appOutput").innerHTML = "<p>" + strOutput + "</p>";
+	var strOutput = "<p>" + formatDateOutput(dateChosen, 1);
+	if (dateIsCDeskClosed(dateChosen) > 1) {
+	//warning if chamber desk half day
+		strOutput = strOutput + "!";
+	}
+	document.getElementById("appOutput").innerHTML = strOutput;	 + "</p>";
 	document.getElementById("appOutputExp").innerHTML = "<p>" + strExp + ".</p>";
-}
-	
-	
-function xx() {
-	//corrections for affirmatives
-	if (document.getElementById('procedure').innerHTML == "the affirmative procedure") {
-		//if gap required btwn making and in force, go back a day from chosen date: this is the date the instrument is to be made
-		if (document.getElementById('chkGapBtwnMk').checked == true) {
-			dateChosen.setDate(dateChosen.getDate() - 1);
-			strExp += " As you have chosen to proceed on the basis that a gap is required between making and coming into force, the instrument must be made not later than " + formatDateOutput(dateChosen, 1) + ". ";
-		} else {
-			strExp += " You have chosen to proceed on the basis that the instrument can be made and come into force on the same day. "
-		}
-		//if chosen date is weekend, usually, go back to nearest weekday
-		if (dateChosen.getDay() == 0 || dateChosen.getDay() == 6) {
-			if (document.getElementById('chkNoWknds').checked == true) {
-				if (dateChosen.getDay() == 0) {
-					dateChosen.setDate(dateChosen.getDate() - 2);
-				} else if (dateChosen.getDay() == 6) {
-					dateChosen.setDate(dateChosen.getDate() - 1);
-				}
-				strExp += "As the instrument cannot be made on a weekend, it will need to be made by " + formatDateOutput(dateChosen, 1) + ". ";
-			} else {
-				strExp += "You have chosen to proceed on the basis that the instrument can be made on a weekend. ";
-			}
-		}
-		//if gap required btwn Prlt vote and making, go back to nearest day Prlt could have voted: this is the last day of the laying period
-		//assume Prlt not voting if recess, c desk closed, or a Friday
-		if (document.getElementById('chkGapBtwnVote').checked == true) {
-			var adjustmentCounter = 0;
-			strExp += "As you have chosen to require a gap between the Parliament voting to approve the instrument in draft and the instrument being made, the vote must happen not later than ";
-			do {
-				dateChosen.setDate(dateChosen.getDate() - 1);
-				bolIsRecess = dateIsRecess(dateChosen);
-				bolIsCDeskClosed = dateIsCDeskClosed(dateChosen);
-				if (bolIsRecess == 1 || bolIsCDeskClosed == 1 || dateChosen.getDay() == 5) {
-					adjustmentCounter = adjustmentCounter + 1;
-				}
-			}
-			while (bolIsRecess == 1 || bolIsCDeskClosed == 1 || dateChosen.getDay() == 5);
-			strExp += formatDateOutput(dateChosen, 1);
-			if (adjustmentCounter > 0) {
-				strExp += " (this date has been arrived at on the basis that Parliament will not vote during a recess, a day the Chamber Desk is closed or a Friday)";
-			}
-			strExp += ". "
-		} else {
-			strExp += "You have chosen to proceed on the basis that the instrument can be made on the same day as the Parliament votes to approve it in draft. ";
-		}
-	}
-	//count back from chosen date required number of laying days, skipping over recesses
-
-	//if day arrived at c desk is closed, go back to first day it is not
-	if (dateIsCDeskClosed(dateChosen) == 1) {
-		strExp += " " + intLayingPeriod + " laying days back from the coming into force date you have chosen is " + formatDateOutput(dateChosen, 1) + ",";
-		do {
-			dateChosen.setDate(dateChosen.getDate() - 1);
-			bolIsCDeskClosed = dateIsCDeskClosed(dateChosen);
-		}
-		while (bolIsCDeskClosed == 1);
-		strExp += " but the Chamber Desk is not open that day and so the latest permissible laying date is " + formatDateOutput(dateChosen, 0) + ".";
-	}
-	//output
-	var strOutput = formatDateOutput(dateChosen, 1);
-	document.getElementById("appOutput").innerHTML = "<p>" + strOutput + "</p>";
-	document.getElementById("appOutputExp").innerHTML = "<p>" + strExp + "</p>";
 }
 
 function returnRecessBlock(currentDate) {
 	var intReturn = 0;
 	currentDate = new Date(currentDate);
 	for (i = 0; i < numberOfRecessPeriods; i++) {
-		if (currentDate >= arrayStartDates[i] && currentDate < arrayEndDates[i]) {
+		if (currentDate >= arrayStartDates[i] && currentDate <= arrayEndDates[i]) {
 			intReturn = i;
 			break;
 		}
@@ -442,51 +399,4 @@ function formatDateOutput(dateToFormat, bolGiveDay) {
 		strOutput = arrayDaysOfWeek[dateToFormat.getDay()] + ", ";
 	}
 	return strOutput + strDate + " " + strMonth + " " + strYear;
-}
-
-function XcalculateLayingDate(strChosenDate) {
-	var arrayMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-	var arrayDaysOfWeek = ["Sunday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Monday"];
-	var datInForce = new Date(strChosenDate);
-	var intLayingPeriod = document.getElementById("numLayingDays").value;
-	var intLayingDays = 0;
-	var datDay = datInForce;
-	var numberOfRelevantPeriods = numberOfRecessPeriods;
-	for (var i = 0; i < numberOfRecessPeriods; i++) {
-		if (arrayStartDates[i] >= datInForce) {
-			numberOfRelevantPeriods = i;
-			break;
-		};
-	};
-	while (intLayingDays != intLayingPeriod) {
-		for (var i = 0; i < numberOfRelevantPeriods; i++) {
-			if (datDay >= arrayStartDates[i] && datDay <= arrayEndDates[i]) {
-				datDay = new Date(arrayStartDates[i]);
-				intLayingDays = intLayingDays - 1;
-			};
-		};
-		datDay.setDate(datDay.getDate() - 1);
-		intLayingDays = intLayingDays + 1;
-	};
-	do {
-		var bolCDeskClosed = 0
-		if (datDay.getDay() == 0 || datDay.getDay() == 6) {
-			bolCDeskClosed = 1;
-		}
-		if (datDay.getDay() == 0) {
-			datDay.setDate(datDay.getDate() - 2);
-		}
-		if (datDay.getDay() == 6) {
-			datDay.setDate(datDay.getDate() - 1);
-		}
-		for (var i = 0; i < numberOfCdeskClosures; i++) {
-			if (arrayCdeskClosedDates[i] == datDay) {
-				bolCDeskClosed = 1;
-				datDay.setDate(datDay.getDate() - 1);
-			}
-		}
-	}
-	while (bolCDeskClosed == 1);
-	var strOutput = arrayDaysOfWeek[datDay.getDay()] + ", " + datDay.getDate() + " " + arrayMonths[datDay.getMonth()] + " " + datDay.getFullYear();
-	document.getElementById("appOutput").innerHTML = "<p>" + strOutput + "</p>";
 }

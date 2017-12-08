@@ -10,7 +10,7 @@ function init() {
 							+ "<span id='conjunct'></span>"
 							+ " after <input type='text' id='numLayingDays' onkeyup='changeNoOfDays()' value='40' /> laying <span id='wdDays'>days</span> is&nbsp;...</p>";
 	document.getElementById("appMain").innerHTML = txtOutput;
-	setUseClearDays();
+	setDefaults();
 }
 function updateAppMain(change) {
 	if (change == 1) {
@@ -31,8 +31,10 @@ function updateAppMain(change) {
 	} else if (change == "procedure") {
 		if (elemProc.innerHTML == "the negative procedure") {
 			elemProc.innerHTML = "the affirmative procedure";
+			document.getElementById('affirmativeOptionsPanel').style.display = 'block';
 		} else if (elemProc.innerHTML == "the affirmative procedure") {
 			elemProc.innerHTML = "the negative procedure";
+			document.getElementById('affirmativeOptionsPanel').style.display = 'none';
 		}
 	}
 	if (elemMode.innerHTML == "latest laying date") {
@@ -47,7 +49,7 @@ function updateAppMain(change) {
 		elemCon.innerHTML = " and is to come into force ";
 	}
 	if (change == "procedure") {
-		setUseClearDays();
+		setDefaults();
 		var numDays = document.getElementById("numLayingDays");
 		if (elemProc.innerHTML == "the negative procedure" && numDays.value == 56) {
 			numDays.value = 40;
@@ -68,17 +70,22 @@ function changeNoOfDays() {
 	} else if (elemDays.innerHTML == "day") {
 		elemDays.innerHTML = "days";
 	}
-	setUseClearDays();
+	setDefaults();
 	calculateRelevantDate();
 }
-function setUseClearDays() {
-	var proc = document.getElementById("procedure").innerHTML;
-	var intDays = document.getElementById("numLayingDays").value;
-	if (proc == "the negative procedure" && intDays == 40) {
-		document.getElementById("chkClearDays").checked = false;
-	} else {
-		document.getElementById("chkClearDays").checked = true;
+function setDefaults() {
+//change opts to defaults, but only if user selected to use defaults
+	if (document.getElementById("chkUseDefault").checked == true) {
+		var proc = document.getElementById("procedure").innerHTML;
+		var intDays = document.getElementById("numLayingDays").value;
+		if (proc == "the negative procedure" && intDays == 40) {
+			document.getElementById("chkClearDays").checked = false;
+		} else {
+			document.getElementById("chkClearDays").checked = true;
+		}
 	}
+	document.getElementById("chkGapBtwnMk").checked = true;
+	document.getElementById("chkNoWknds").checked = true;
 }
 function revealOpts() {
 	document.getElementById("btnRevealOpts").classList.toggle("buttonRotated");
@@ -90,6 +97,15 @@ function unhideOpts() {
 		divPanel.style.display = 'block';
 	} else {
 		divPanel.style.display = 'none';
+	}
+}
+function showHideOpts() {
+	var divPanel = document.getElementById("optionsPanel");
+	if (divPanel.style.display == 'none') {
+		divPanel.style.display = 'block';
+	} else {
+		setDefaults();
+		divPanel.style.display = 'none'
 	}
 }
 function calFwBack(direction) {

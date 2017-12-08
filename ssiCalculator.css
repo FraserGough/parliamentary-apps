@@ -95,6 +95,9 @@ h1 {
 .cDeskHoliday {
 	background-color:blue;
 }
+.cDeskHalfHoliday {
+	background-color:green;
+}
 .recessDay.cDeskHoliday {
 	background-color:purple;
 }
