@@ -1,74 +1,73 @@
-html {
-	height:100%;
-}
-body {
-    display: flex;
-    flex-direction:column;
-    height:100vh;
-    overflow-x:hidden;
-    background-color:#F5F5F5;
-	color:#192231;
+#appContainer {
+	position:absolute;
+	margin-left:10%;
+	width:80%;
 }
 #appCore {
-	flex: 1 0 auto;
-	padding:20px;
+	overflow: hidden;
 }
-#footer {
-	flex-shrink:0;
-	padding:20px;
-	border-top: solid 1px;
-	background-color:#A1D6E2;
+#appMain {
+	font-size:4vmax;
+	line-height:1.4;
 }
-#header {
-	flex-shrink:0;
-	padding-top:10px;
-	padding-left:10px;
-	padding-bottom:5px;
-	border-bottom: solid 1px;
-	background-color:#A1D6E2;
-}
-h1 {
+#appOptions {
 	font-size:2.2vmax;
-	padding:0;
-	margin:0;
-	font-family:"Arial Black";
-	color:#192231;
-}
-#header p {
-	font-size:1.5vmax;
-	padding:0 0 0 1%;
-	margin:0;
-	font-family:"Arial Black";
-	color:#192231;
-}
-#header a {
 	color:#626D71;
-	text-decoration:none;
+	margin-top:8%;
 }
-#header a:hover {
-	color:#FFFFFF;
-	text-decoration:underline;
-	cursor:pointer;
+#appOutput {
+	font-size:4vmax;
+	line-height:1.4;
+	text-align:center;
 }
-.slidable {
+.calendarButton {
+	font-size:1.8vmax;
+	border-radius:70%;
+	background-color: #FFFFFF;
+	box-shadow: 0 3px 3px #999;
+	margin-left: 10px;
+	margin-right: 10px;
+}
+.calendarButton:active {
+	box-shadow:0 1px 3px #666;
+	transform: translateY(2px);
+}
+#calendarContainer {
 	position:absolute;
-	height:200px;
-	width:90%;
-	margin-top:5%;
-	-webkit-transition: 1s ease-in-out;
-    -moz-transition: 1s ease-in-out;
-    -o-transition: 1s ease-in-out; 
-    transition: 1s ease-in-out;
+	width:80%;
+	margin-left: 10%;
+	margin-top: 3%;
 }
-.holdLeft {
-    -ms-transform: translate(-150%, 0px); /* IE 9 */
-    -webkit-transform: translate(-150%, 0px); /* Safari */
-    transform: translate(-150%, 0px); /* Standard syntax */
+#calendarControls {
+	display:flex;
+	align-items:center;
+	justify-content:center;
 }
-.holdRight{
-    -ms-transform: translate(200%, 0px); /* IE 9 */
-    -webkit-transform: translate(200%, 0px); /* Safari */
-    transform: translate(200%, 0px); /* Standard syntax */
+.calendarGrid {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	margin-top: 20px;
+	grid-gap: 1px;
+}
+.calendarGrid > div {
+	text-align:center;
+	line-height:300%;
+	border: 1px #9ba9c1 solid;
+}
+.calendarGrid > div:hover, div:focus {
+    cursor: pointer;
+}
+.calendarGrid > div.calendarEmptySquare {
+	border: 0;
+}
+.calendarGrid .header {
+	background-color:#cbdbf4;
+}
+.cDeskHalfHoliday {
+	background-color:green;
+}
+.cDeskHoliday {
+	background-color:blue;
 }
 .clickable {
 	cursor:pointer;
@@ -77,89 +76,64 @@ h1 {
 .clickable:hover {
 	text-decoration:underline;
 }
-.button {
-	border-radius:50%;
-	-webkit-transition: 250ms ease-in-out;
-    -moz-transition: 250ms ease-in-out;
-    -o-transition: 250ms ease-in-out;
-    transition: 250ms ease-in-out;
+.fadeIn {
+	animation-name: fade;
+	animation-duration: 1s;
+	animation-direction:reverse;
+	animation-fill-mode: backwards;
 }
-.buttonRotated {
-	-ms-transform: rotate(90deg);
-	-webkit-transform:rotate(90deg);
-	transform:rotate(90deg);
+.fadeOut {
+	animation-name: fade;
+	animation-duration: 1s;
+	animation-direction: normal;
+	animation-fill-mode: forwards;
 }
-.recessDay {
-	background-color:hsla(0, 100%, 50%, 0.3);
+.hidden {
+	display: none;
 }
-.cDeskHoliday {
-	background-color:blue;
+@keyframes fade {
+	from {opacity: 1;}
+	to {opacity: 0;}
 }
-.cDeskHalfHoliday {
-	background-color:green;
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
 }
-.recessDay.cDeskHoliday {
-	background-color:purple;
+.modal-close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
 }
-table {
-	margin-top:5%;
-	width:50%;
-	height:50%;
-	font-family:Helvetica;
-	color:#192231;
+.modal-close:hover, .modalclose:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
 }
-table a {
-	color:#192231;
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 5px solid #47618c;
+    width: 80%; /* Could be more or less, depending on screen size */
+}
+.modal-content p {
+	width:95%;
+}
+.modalOpenButton {
 	text-decoration:none;
+	color: #47618c;
 }
-th, td {
-	padding:10px;
-	font-size:3vmax;
-	width:50%;
-	text-align:center;
-}
-th {
-	font-weight:normal;
-}	
-#calendarInternal {
-	display:flex;
-	align-items:center;
-	justify-content:center;
-	flex-direction:column;
-	color:#192231;
-	
-}
-#calendarControls {
-	display:flex;
-	align-items:center;
-	justify-content:center;
-}
-select {
-	font-size:3vmax;
-	font-family:Helvetica;
-	border-radius:10%;
-	min-width:50%;
-	text-align:center;
-	background-color:#FFFFFF;
-	color:#192231;
-}
-#appMain {
-	font-family:Helvetica;
-	font-size:4vmax;
-	line-height:1.4;
-	margin-left:1%;
-}
-#appOutput {
-	font-family:Helvetica;
-	font-size:4vmax;
-	line-height:1.4;
-	text-align:center;
-}
-#appOptions {
-	font-family:Helvetica;
-	font-size:2.2vmax;
-	color:#626D71;
-	margin-top:8%;
+.modalOpenButton:hover, .modalOpenButton:focus {
+	text-decoration:underline;
 }
 #numLayingDays {
 	font-family:Helvetica;
@@ -172,23 +146,16 @@ select {
 #numLayingDays:hover {
 	text-decoration:underline;
 }
-.calFwBack {
+.recessDay {
+	background-color:hsla(0, 100%, 50%, 0.3);
+}
+.recessDay.cDeskHoliday {
+	background-color:purple;
+}
+select {
+	font-size:2vmax;
 	font-family:Helvetica;
-	font-size:3vmax;
-	border-radius:70%;
-	background-color: #FFFFFF;
-	box-shadow: 0 3px 3px #999;
-}
-.calFwBack:active {
-	box-shadow:0 1px 3px #666;
-	transform: translateY(2px);
-}
-#btnDatBack {
-	margin-right:10%;
-}
-#btnDatFw {
-	margin-left:10%;
-}
-.calendarCol {
-	min-width:14%;
+	text-align:center;
+	background-color:#FFFFFF;
+	color:#192231;
 }

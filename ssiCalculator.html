@@ -3,19 +3,25 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="ssiCalculatorStandard.css">
 <link rel="stylesheet" type="text/css" href="ssiCalculator.css">
 <script src="ssiCalculatorDisplay.js"></script>
 </head>
 <body onload="getXML()">
 <div id="header"><h1>Scottish statutory instrument calculator</h1><p><a href="ssiCalculatorAbout.html">about</a> || <a>gough.fraser@gmail.com</a></p></div>
 <div id="appCore">
-	<div id="appContainer" class="slidable">
+	<div id="expModal" class="modal">
+  		<div class="modal-content">
+    		<span class="modal-close" onclick="closeModal()">&times;</span>
+   		 	<p id="expModalText"></p>
+  		</div>
+	</div>
+	<div id="appContainer">
 		<div id="appMain"></div>
 		<div id="appOutput"><p>?</p></div>
-		<div id="appOutputExp"></div>
+		<div id="appOutputExp"></div> 
 		<div id="appOptions">
 		<p><input type="checkbox" id="chkUseDefault" onchange="showHideOpts()" checked /> use default options</p>
-		<!-- <div id='showHideOptions'<p>options <input  id="btnRevealOpts" class="button" type="button" value="&#8594" onclick="revealOpts()" /></p></div> -->
 			<div id='optionsPanel' style='display:none'>
 				<p><input type="checkbox" id="chkClearDays" onchange='calculateRelevantDate()'" /> laying days are to be clear</p>
 				<div id='affirmativeOptionsPanel' style='display:none'>
@@ -23,19 +29,16 @@
 					<p><input type="checkbox" id="chkNoWknds" onchange='calculateRelevantDate()' checked /> the instrument cannot be made on a weekend</p>
 				</div>
 			</div>
-			<!-- </div> -->
-		</div>
+		</div> 
 	</div>
-	<div id="calendarContainer" class="slidable holdRight">
-		<div id="calendarInternal">
-			<div id="calendarControls">
-				<input type="button" class="calFwBack" id="btnDatBack" value="&#8592;" onclick="calFwBack(0)"/>
-				<select id="month" onchange="writeCalendar()"></select>
-				<select id="year" onchange="writeCalendar()"></select>
-				<input type="button" class="calFwBack" id="btnDatFw" value="&#8594;" onclick="calFwBack(1)"/>
-			</div>
-			<div id="calendarTable"></div>
+	<div id="calendarContainer" class="hidden">
+		<div id="calendarControls">
+			<input type="button" class="calendarButton" id="btnDatBack" value="&#8592;" onclick="calFwBack(0)"/>
+			<select id="month" onchange="writeCalendar()"></select>
+			<select id="year" onchange="writeCalendar()"></select>
+			<input type="button" class="calendarButton" id="btnDatFw" value="&#8594;" onclick="calFwBack(1)"/>
 		</div>
+		<div class="calendarGrid" id="calendarGrid"></div>
 	</div>
 </div>
 <script>init();</script>

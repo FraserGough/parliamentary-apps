@@ -1,17 +1,63 @@
-function slide() {
-	document.getElementById("appContainer").classList.toggle('holdLeft');
-	document.getElementById("calendarContainer").classList.toggle('holdRight');
+var animationEvent = whichAnimationEvent(); /* used for whichAnimationEvent function */
+
+function changeNoOfDays() {
+	var strValue = document.getElementById("numLayingDays").value;
+	if (isNaN(strValue) == true) {
+		document.getElementById("numLayingDays").value = "";
+	}
+	var elemDays = document.getElementById("wdDays");
+	if (strValue == 1) {
+		elemDays.innerHTML = "day";
+	} else if (elemDays.innerHTML == "day") {
+		elemDays.innerHTML = "days";
+	}
+	document.getElementById("numLayingDays").style.width = (2.2 * strValue.length) + "vmax";
+	setDefaults();
+	calculateRelevantDate();
 }
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function fade() {
+	var animationEvent = whichAnimationEvent();
+	var appContainer = document.getElementById("appContainer");
+	var calContainer = document.getElementById("calendarContainer");
+	var elemToShow = "";
+	var elemToHide = "";
+	if (calContainer.classList.contains("hidden") == 1) {
+		elemToShow = calContainer;
+		elemToHide = appContainer;
+	} else {
+		elemToShow = appContainer;
+		elemToHide = calContainer;
+	}
+	elemToShow.classList.add("fadeIn");
+	elemToShow.classList.remove("hidden");
+	elemToHide.addEventListener("animationEvent", hide(elemToShow, elemToHide));
+	elemToHide.classList.add("fadeOut");
+}
+
+async function hide(elemToShow, elemToHide) {
+	await sleep(1000);
+	elemToHide.removeEventListener("animationEvent", hide);
+	elemToHide.classList.add("hidden");
+	elemToHide.classList.remove("fadeOut");
+	elemToShow.classList.remove("fadeIn");
+}
+
 function init() {
 	var txtOutput = "<p>The <span id='mode' class='clickable' onclick='updateAppMain(1)'>latest laying date</span> for an instrument subject to "
 							+ "<span id='procedure' class='clickable' onclick='updateAppMain(2)'>the negative procedure</span>, "
 							+ " that is <span id='laidOrInForce'>to come into force</span> on "
-							+ "<span id='chosenDate' class='clickable' onclick='slide()'>?</span>"
+							+ "<span id='chosenDate' class='clickable' onclick='fade()'>?</span>"
 							+ "<span id='conjunct'></span>"
 							+ " after <input type='text' id='numLayingDays' onkeyup='changeNoOfDays()' value='40' /> laying <span id='wdDays'>days</span> is&nbsp;...</p>";
 	document.getElementById("appMain").innerHTML = txtOutput;
 	setDefaults();
 }
+
 function updateAppMain(change) {
 	if (change == 1) {
 		change = "mode";
@@ -59,20 +105,7 @@ function updateAppMain(change) {
 	}
 	calculateRelevantDate();
 }
-function changeNoOfDays() {
-	var strValue = document.getElementById("numLayingDays").value;
-	if (isNaN(strValue) == true) {
-		document.getElementById("numLayingDays").value = "";
-	}
-	var elemDays = document.getElementById("wdDays");
-	if (strValue == 1) {
-		elemDays.innerHTML = "day";
-	} else if (elemDays.innerHTML == "day") {
-		elemDays.innerHTML = "days";
-	}
-	setDefaults();
-	calculateRelevantDate();
-}
+
 function setDefaults() {
 //change opts to defaults, but only if user selected to use defaults
 	if (document.getElementById("chkUseDefault").checked == true) {
@@ -86,11 +119,15 @@ function setDefaults() {
 	}
 	document.getElementById("chkGapBtwnMk").checked = true;
 	document.getElementById("chkNoWknds").checked = true;
+//run calculation again to update if defaults being reapplied
+	calculateRelevantDate();
 }
+
 function revealOpts() {
 	document.getElementById("btnRevealOpts").classList.toggle("buttonRotated");
 	setTimeout(unhideOpts, 250);
 }
+
 function unhideOpts() {
 	var divPanel = document.getElementById("optionsPanel");
 	if (divPanel.style.display == 'none') {
@@ -99,6 +136,7 @@ function unhideOpts() {
 		divPanel.style.display = 'none';
 	}
 }
+
 function showHideOpts() {
 	var divPanel = document.getElementById("optionsPanel");
 	if (divPanel.style.display == 'none') {
@@ -108,6 +146,7 @@ function showHideOpts() {
 		divPanel.style.display = 'none'
 	}
 }
+
 function calFwBack(direction) {
 	var lstMonth = document.getElementById("month");
 	var lstYear = document.getElementById('year');
@@ -139,6 +178,7 @@ function calFwBack(direction) {
 	}
 	writeCalendar();
 }
+
 function calBtnsShowHide() {
 	var curYear = new Date();
 	curYear = parseInt(curYear.getFullYear());
@@ -155,4 +195,29 @@ function calBtnsShowHide() {
 		document.getElementById("btnDatBack").style.visibility = 'visible';
 		document.getElementById("btnDatFw").style.visibility = 'visible';
 	}
+}
+
+function openModal() {
+	document.getElementById("expModal").style.display = "block";
+}
+
+function closeModal() {
+	document.getElementById("expModal").style.display = "none";
+}
+
+/* From Modernizr */
+function whichAnimationEvent() {
+    var t;
+    var el = document.createElement('fakeelement');
+    var animations = {
+		      'anitmation':'animationend',
+			      'OAnimation':'oAnimationEnd',
+			      'MozAnimation':'animationend',
+			      'WebkitAnimation':'webkitAnimationEnd'
+    }
+    for(a in animations) {
+        if( el.style[a] !== undefined ) {
+            return animations[a];
+        }
+    }
 }
