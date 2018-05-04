@@ -120,7 +120,9 @@ function setDefaults() {
 	document.getElementById("chkGapBtwnMk").checked = true;
 	document.getElementById("chkNoWknds").checked = true;
 //run calculation again to update if defaults being reapplied
-	calculateRelevantDate();
+	if (document.getElementById("chosenDate").innerHTML != "?") {
+		calculateRelevantDate();
+	}
 }
 
 function revealOpts() {
