@@ -270,19 +270,26 @@ function getXML() {
 //	var arrayStartDates, arrayEndDates, arrayCdeskClosedDates, numberOfRecessPeriods, numberOfCdeskClosures;
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function () {
+		console.log(this.readyState);
 	   	if (this.readyState == 4 && this.status == 200) {
 	   		getRecessDates(this);
+	   		xmlhttp = null;
+	   		getXML2();
 	   	}
-	};
+	}
 	xmlhttp.open("GET", "holyroodRecessDates.xml", true);
 	xmlhttp.send();
-	
-	xmlhttp = new XMLHttpRequest();
+}
+
+function getXML2() {
+	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function () {
+		console.log("2: " + this.readyState);
 	   	if (this.readyState == 4 && this.status == 200) {
 	   		getCdeskClosureDates(this);
+	   		xmlhttp = null;
 	   	}
-	};
+	}
 	xmlhttp.open("GET", "holyroodDeskClosedDates.xml", true);
 	xmlhttp.send();
 }
