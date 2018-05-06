@@ -267,14 +267,11 @@ function formatDateOutput(dateToFormat, bolGiveDay) {
 
 function getXML() {
 	initializeCalendarControls();
-	var i = 0;
 //	var arrayStartDates, arrayEndDates, arrayCdeskClosedDates, numberOfRecessPeriods, numberOfCdeskClosures;
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function () {
 	   	if (this.readyState == 4 && this.status == 200) {
 	   		getRecessDates(this);
-	   		console.log(i);
-	   		i++;
 	   	}
 	};
 	xmlhttp.open("GET", "holyroodRecessDates.xml", true);
