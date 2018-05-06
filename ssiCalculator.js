@@ -1,3 +1,7 @@
+"use strict"
+
+var arrayStartDates, arrayEndDates, arrayCdeskClosedDates, numberOfRecessPeriods, numberOfCdeskClosures;
+
 function calculateInForceDate(strChosenDate) {
 	var intLayingPeriod = document.getElementById("numLayingDays").value;
 	var intCountedDays = 0;
@@ -188,6 +192,7 @@ function calMarkSpecialDays(currentMonth, currentYear, daysInMonth) {
 
 function dateIsCDeskClosed(currentDate) {
 	var intReturn = 0;
+	var i;
 	currentDate = new Date(currentDate);
 	if (currentDate.getDay() == 0 || currentDate.getDay() == 6) {
 		intReturn = 1;
@@ -213,6 +218,7 @@ function dateIsCDeskClosed(currentDate) {
 
 function dateIsRecess(currentDate) {
 	var intReturn = 0;
+	var i;
 	currentDate = new Date(currentDate);
 	for (i = 0; i < numberOfRecessPeriods; i++) {
 		if (currentDate >= arrayStartDates[i] && currentDate <= arrayEndDates[i]) {
@@ -261,7 +267,7 @@ function formatDateOutput(dateToFormat, bolGiveDay) {
 
 function getXML() {
 	initializeCalendarControls();
-	var arrayStartDates, arrayEndates, arrayCdeskClosedDates, numberOfRecessPeriods, numberOfDdeskClosures;
+//	var arrayStartDates, arrayEndDates, arrayCdeskClosedDates, numberOfRecessPeriods, numberOfCdeskClosures;
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function () {
 	   	if (this.readyState == 4 && this.status == 200) {
@@ -293,6 +299,7 @@ function getCdeskClosureDates(xml) {
 		};
 		arrayCdeskClosedDates[i] = objClosedDay;
 	}
+	xml = null;
 	writeCalendar();
 }
 
@@ -309,6 +316,7 @@ function getRecessDates(xml) {
 
 function initializeCalendarControls() {
 	var strOutput = "";
+	var i;
 	var currentDate = new Date();
 	var currentYear = Number(currentDate.getFullYear());
 	for (i = -1; i < 2; i++) {
@@ -334,6 +342,7 @@ function initializeCalendarControls() {
 
 function returnRecessBlock(currentDate) {
 	var intReturn = 0;
+	var i;
 	currentDate = new Date(currentDate);
 	for (i = 0; i < numberOfRecessPeriods; i++) {
 		if (currentDate >= arrayStartDates[i] && currentDate <= arrayEndDates[i]) {

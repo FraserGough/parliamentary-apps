@@ -1,3 +1,5 @@
+"use strict"
+
 var animationEvent = whichAnimationEvent(); /* used for whichAnimationEvent function */
 
 function changeNoOfDays() {
@@ -209,7 +211,7 @@ function closeModal() {
 
 /* From Modernizr */
 function whichAnimationEvent() {
-    var t;
+//    var t;
     var el = document.createElement('fakeelement');
     var animations = {
 		      'anitmation':'animationend',
@@ -217,6 +219,7 @@ function whichAnimationEvent() {
 			      'MozAnimation':'animationend',
 			      'WebkitAnimation':'webkitAnimationEnd'
     }
+    var a;
     for(a in animations) {
         if( el.style[a] !== undefined ) {
             return animations[a];
