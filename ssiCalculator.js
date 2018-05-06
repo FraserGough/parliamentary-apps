@@ -266,7 +266,7 @@ function formatDateOutput(dateToFormat, bolGiveDay) {
 }
 
 function getXML() {
-	initializeCalendarControls();
+//	initializeCalendarControls();
 //	var arrayStartDates, arrayEndDates, arrayCdeskClosedDates, numberOfRecessPeriods, numberOfCdeskClosures;
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function () {
@@ -338,6 +338,7 @@ function initializeCalendarControls() {
 		strOutput = strOutput + ">" + arrayMonths[i] + "</option>";
 	}
 	document.getElementById("month").innerHTML = strOutput;
+	getXML();
 }
 
 function returnRecessBlock(currentDate) {
