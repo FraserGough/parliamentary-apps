@@ -363,16 +363,25 @@ function writeCalendar() {
 	if (firstDay == 0) {
 		firstDay = 7;
 	}
-	i = 1 - firstDay + 1;
+	if (firstDay != 1) {
+		do {
+			strOutput += "<div class='calendarEmptySquare'></div>";
+			firstDay = firstDay - 1;
+		}
+		while (firstDay != 1);
+	}
+	var i = 1;
+//	var i = 1 - firstDay + 1;
 	do {
 		if (i > 0 && i <= daysInMonth) {
 			strOutput = strOutput + "<div id='date"+ i + "' onclick='fillDate(" + i + ")'>" + i + "</div>" ;
-		} else {
-			strOutput = strOutput + "<div class='calendarEmptySquare'></div>";
 		}
+	//	else {
+	//		strOutput = strOutput + "<div class='calendarEmptySquare'></div>";
+	//	}
 		i = i + 1;
 	}
-	while  (i <= daysInMonth || (i + (-1*(1 - firstDay))) % 7 != 0);
+	while  (i <= daysInMonth);
 	document.getElementById("calendarGrid").innerHTML = strOutput;
 	calBtnsShowHide();
 	calMarkSpecialDays(currentMonth, currentYear, daysInMonth);
