@@ -370,7 +370,7 @@ function writeCalendar() {
 	var arrayDaysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 	for (var i = 0; i < 7; i++) {
 		var strDayAbbr = arrayDaysOfWeek[i].slice(0, 3);
-		strOutput = strOutput + "<div class='header'>" + strDayAbbr + "</div>";
+		strOutput = "<div class='header'>" + strDayAbbr + "</div>";
 	}
 	//add days of month
 	var currentMonth = document.getElementById("month").options[document.getElementById("month").selectedIndex].value;
@@ -379,7 +379,8 @@ function writeCalendar() {
 	var daysInMonth = 32 - new Date(currentYear, Number(currentMonth), 32).getDate();
 	//get day of first day of currentMonth
 	var firstDate = new Date(currentYear + "-" + (Number(currentMonth) + 1) + "-1");
-	var firstDay = firstDate.getDay();
+	var firstDay = Number(firstDate.getDay());
+	console.log("first day is " + firstDay);
 	if (firstDay == 0) {
 		firstDay = 7;
 	}
