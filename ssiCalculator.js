@@ -298,6 +298,7 @@ function getCdeskClosureDates(xml) {
 	var xmlDoc = xml.responseXML;
 	var objClosedDay;
 	numberOfCdeskClosures = xmlDoc.getElementsByTagName('day').length;
+	console.log("number of c desk closures " + numberOfCdeskClosures);
 	arrayCdeskClosedDates = new Array(numberOfCdeskClosures);
 	for (var i = 0; i < numberOfCdeskClosures; i++) {
 		objClosedDay = {
@@ -305,6 +306,7 @@ function getCdeskClosureDates(xml) {
 			time: xmlDoc.getElementsByTagName('time')[i].childNodes[0].nodeValue
 		};
 		arrayCdeskClosedDates[i] = objClosedDay;
+		console.log("c desk closed loops " + i);
 	}
 	xml = null;
 	writeCalendar();
