@@ -297,7 +297,8 @@ function getXML2() {
 function getCdeskClosureDates(xml) {
 	var xmlDoc = xml.responseXML;
 	var objClosedDay;
-	numberOfCdeskClosures = xmlDoc.getElementsByTagName('day').length;
+//	numberOfCdeskClosures = xmlDoc.getElementsByTagName('day').length;
+	numberOfCdeskClosures = 1;
 	console.log("number of c desk closures " + numberOfCdeskClosures);
 	arrayCdeskClosedDates = new Array(numberOfCdeskClosures);
 	for (var i = 0; i < numberOfCdeskClosures; i++) {
