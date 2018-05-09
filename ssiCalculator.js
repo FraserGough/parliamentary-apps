@@ -151,7 +151,7 @@ function calculateRelevantDate() {
 		currentMonth = Number(currentMonth) + 1;
 		var currentYear = document.getElementById("year").options[document.getElementById("year").selectedIndex].value;
 		//get day of first day of currentMonth
-		var firstDate = new Date(currentYear + "-" + (Number(currentMonth) + 1) + "-1");
+		var firstDate = new Date(Number(currentYear) + "/" + (Number(currentMonth) + 1) + "/01");
 		var strChosenDate = currentYear + "-" + currentMonth + "-" + document.getElementById('selectedDay').innerHTML;
 		if (mode == "latest laying date") {
 			calculateLayingDate(strChosenDate);
