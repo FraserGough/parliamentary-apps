@@ -270,21 +270,15 @@ function getXML() {
 //	var arrayStartDates, arrayEndDates, arrayCdeskClosedDates, numberOfRecessPeriods, numberOfCdeskClosures;
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function () {
-		console.log(this.readyState);
 	   	if (this.readyState == 4 && this.status == 200) {
 	   		getRecessDates(this);
-	   		xmlhttp = null;
-	   		getXML2();
 	   	}
 	}
 	xmlhttp.open("GET", "holyroodRecessDates.xml", true);
 	xmlhttp.send();
-}
 
-function getXML2() {
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function () {
-		console.log("2: " + this.readyState);
 	   	if (this.readyState == 4 && this.status == 200) {
 	   		getCdeskClosureDates(this);
 	   		xmlhttp = null;
@@ -297,9 +291,7 @@ function getXML2() {
 function getCdeskClosureDates(xml) {
 	var xmlDoc = xml.responseXML;
 	var objClosedDay;
-//	numberOfCdeskClosures = xmlDoc.getElementsByTagName('day').length;
-	numberOfCdeskClosures = 1;
-	console.log("number of c desk closures " + numberOfCdeskClosures);
+	numberOfCdeskClosures = xmlDoc.getElementsByTagName('day').length;
 	arrayCdeskClosedDates = new Array(numberOfCdeskClosures);
 	for (var i = 0; i < numberOfCdeskClosures; i++) {
 		objClosedDay = {
@@ -307,7 +299,6 @@ function getCdeskClosureDates(xml) {
 			time: xmlDoc.getElementsByTagName('time')[i].childNodes[0].nodeValue
 		};
 		arrayCdeskClosedDates[i] = objClosedDay;
-		console.log("c desk closed loops " + i);
 	}
 	xml = null;
 	writeCalendar();
@@ -370,36 +361,27 @@ function writeCalendar() {
 	var arrayDaysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 	for (var i = 0; i < 7; i++) {
 		var strDayAbbr = arrayDaysOfWeek[i].slice(0, 3);
-		strOutput = "<div class='header'>" + strDayAbbr + "</div>";
+		strOutput += "<div class='header'>" + strDayAbbr + "</div>";
 	}
 	//add days of month
-	var currentMonth = document.getElementById("month").options[document.getElementById("month").selectedIndex].value;
-	var currentYear = document.getElementById("year").options[document.getElementById("year").selectedIndex].value;
+	var currentMonth = Number(document.getElementById("month").options[document.getElementById("month").selectedIndex].value);
+	var currentYear = Number(document.getElementById("year").options[document.getElementById("year").selectedIndex].value);
 	//get number of days in currentMonth
-	var daysInMonth = 32 - new Date(currentYear, Number(currentMonth), 32).getDate();
+	var daysInMonth = 32 - new Date(currentYear, currentMonth, 32).getDate();
 	//get day of first day of currentMonth
-	var firstDate = new Date(currentYear + "-" + (Number(currentMonth) + 1) + "-1");
+	var firstDate = new Date(String(currentYear) + "/" + String((currentMonth + 1)) + "/" + "01");
 	var firstDay = Number(firstDate.getDay());
-	console.log("first day is " + firstDay);
 	if (firstDay == 0) {
 		firstDay = 7;
 	}
-	if (firstDay != 1) {
-		do {
-			strOutput += "<div class='calendarEmptySquare'></div>";
-			firstDay = firstDay - 1;
-		}
-		while (firstDay != 1);
-	}
-	var i = 1;
-//	var i = 1 - firstDay + 1;
+	var i = 1 - firstDay + 1;
 	do {
 		if (i > 0 && i <= daysInMonth) {
 			strOutput = strOutput + "<div id='date"+ i + "' onclick='fillDate(" + i + ")'>" + i + "</div>" ;
 		}
-	//	else {
-	//		strOutput = strOutput + "<div class='calendarEmptySquare'></div>";
-	//	}
+		else {
+			strOutput = strOutput + "<div class='calendarEmptySquare'></div>";
+		}
 		i = i + 1;
 	}
 	while  (i <= daysInMonth);
