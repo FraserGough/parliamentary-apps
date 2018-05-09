@@ -152,7 +152,7 @@ function calculateRelevantDate() {
 		var currentYear = document.getElementById("year").options[document.getElementById("year").selectedIndex].value;
 		//get day of first day of currentMonth
 		var firstDate = new Date(Number(currentYear) + "/" + (Number(currentMonth) + 1) + "/01");
-		var strChosenDate = currentYear + "-" + currentMonth + "-" + document.getElementById('selectedDay').innerHTML;
+		var strChosenDate = String(currentYear) + "/" + String(currentMonth) + "/" + document.getElementById('selectedDay').innerHTML;
 		if (mode == "latest laying date") {
 			calculateLayingDate(strChosenDate);
 		} else if (mode =="earliest coming into force date") {
