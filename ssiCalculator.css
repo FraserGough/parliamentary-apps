@@ -118,6 +118,7 @@
 }
 .keyButton {
 	position: absolute;
+	margin-top:-3.5%;
 	margin-left: 90%;
 	font-size:1.8vmax;
 	border-radius:70%;
