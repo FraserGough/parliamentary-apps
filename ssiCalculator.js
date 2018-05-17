@@ -32,7 +32,7 @@ function calculateInForceDate(strChosenDate) {
 	}
 	while (intCountedDays != intLayingPeriod);
 	if (recessEncountered == "") {
-		strExp += "<p>Counting forwards " + intLayingPeriod + " laying days from that day, no recesses are encountered.</p>";
+		strExp += "<p>Counting forwards " + intLayingPeriod + " laying days, no recesses are encountered.</p>";
 	}
 //if affirmative, this gives us date instrument can be made, corrections x2
 	if (document.getElementById("procedure").innerHTML == "the affirmative procedure") {
@@ -62,7 +62,7 @@ function calculateInForceDate(strChosenDate) {
 	}
 //output
 	var strOutput = formatDateOutput(dateChosen, 1);
-	document.getElementById("appOutput").innerHTML = "<p>" + strOutput + "<a href='#' onclick='openModal()' class='modalOpenButton'>*</a></p>";
+	document.getElementById("appOutput").innerHTML = "<p>" + strOutput + "<a href='#' onclick='openModal(`expModal`)' class='modalOpenButton'>*</a></p>";
 	document.getElementById("expModalText").innerHTML = strExp;
 }
 
@@ -140,7 +140,7 @@ function calculateLayingDate(strChosenDate) {
 	//warning if chamber desk half day
 		strOutput = strOutput + "!";
 	}
-	document.getElementById("appOutput").innerHTML = strOutput + "<a href='#' onclick='openModal()' class='modalOpenButton'>*</a></p>";
+	document.getElementById("appOutput").innerHTML = strOutput + "<a href='#' onclick='openModal(`expModal`)' class='modalOpenButton'>*</a></p>";
 	document.getElementById("expModalText").innerHTML = strExp;
 }
 
@@ -166,7 +166,7 @@ function calMarkSpecialDays(currentMonth, currentYear, daysInMonth) {
 	var datCurrentDate, intDayOfWeek, bolInRecess, bolCDeskClosed;
 	for (var i = 1; i <= daysInMonth; i++) {
 //get date to check
-		datCurrentDate = new Date(currentYear + "-" + (Number(currentMonth) + 1) + "-" + i);
+		datCurrentDate = new Date(String(currentYear) + "/" + (Number(currentMonth) + 1) + "/" + i);
 //check if date in recess
 		bolInRecess = dateIsRecess(datCurrentDate);
 //check if day chamber desk closed
@@ -220,7 +220,7 @@ function dateIsRecess(currentDate) {
 	var intReturn = 0;
 	var i;
 	currentDate = new Date(currentDate);
-	for (i = 0; i < numberOfRecessPeriods; i++) {
+	for (i = 0; i <= numberOfRecessPeriods; i++) {
 		if (currentDate >= arrayStartDates[i] && currentDate <= arrayEndDates[i]) {
 			intReturn = 1;
 			break;
@@ -236,10 +236,12 @@ function fillDate(dateChosen) {
 	if (document.getElementById("mode").innerHTML == "earliest coming into force date") {
 		var elem = document.getElementById("date" + dateChosen);
 		if (elem.classList.contains('cDeskHoliday') == true) {
-			alert('Instruments cannot be laid on days that the Office of the Clerk is closed.');
+			document.getElementById('errModalText').innerHTML = "<p>Instruments cannot be laid on days that the Office of the Clerk is closed.</p>";
+			openModal('errModal');
 			return;
 		} else if (elem.classList.contains('cDeskHalfHoliday') == true) {
-			alert('The Office of the Clerk is operating reduced hours on that day.');
+			document.getElementById('errModalText').innerHTML = "<p>The Office of the Clerk is operating reduced hours on that day.</p>";
+			openModal('errModal');
 		}
 	}
 	var arrayMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];

@@ -5,7 +5,7 @@ var animationEvent = whichAnimationEvent(); /* used for whichAnimationEvent func
 function changeNoOfDays() {
 	var strValue = document.getElementById("numLayingDays").value;
 	if (isNaN(strValue) == true) {
-		document.getElementById("numLayingDays").value = "";
+		document.getElementById("numLayingDays").value = "1";
 	}
 	var elemDays = document.getElementById("wdDays");
 	if (strValue == 1) {
@@ -70,8 +70,23 @@ function updateAppMain(change) {
 	var elemProc = document.getElementById("procedure");
 	var elemLoF = document.getElementById("laidOrInForce");
 	var elemCon = document.getElementById("conjunct");
+	var elemChDate = document.getElementById("chosenDate");
 	if (change == "mode") {
 		if (elemMode.innerHTML == "latest laying date") {
+		// handler for switching to get coming into force date when impermissible laying date chosen
+			if (elemChDate.innerHTML != "?") {
+				var datCurrentDate = String(document.getElementById("year").options[document.getElementById("year").selectedIndex].value) + "/" 
+					+ String(Number(document.getElementById("month").options[document.getElementById("month").selectedIndex].value) + 1) 
+					+ "/" + document.getElementById('selectedDay').innerHTML;
+				var datCurrentDate = new Date(datCurrentDate);
+				var bolCDeskClosed = dateIsCDeskClosed(datCurrentDate);
+				if (bolCDeskClosed == 1) {
+					document.getElementById('errModalText').innerHTML = "<p>You cannot lay an instrument on " 
+						+ elemChDate.innerText + ", because the Chamber Desk is closed that day.</p>";
+					openModal('errModal');
+					return;
+				}
+			}
 			elemMode.innerHTML = "earliest coming into force date";
 		} else {
 			elemMode.innerHTML = "latest laying date";
@@ -164,7 +179,8 @@ function calFwBack(direction) {
 				lstMonth.value = 11;
 				lstYear.value = parseInt(lstYear.value) - 1;
 			} else {
-				alert('cannot go back further');
+				document.getElementById('errModalText').innerHTML = "<p>Cannot go back further.</p>";
+				openModal('errModal');
 			}
 		}
 	} else {
@@ -176,7 +192,8 @@ function calFwBack(direction) {
 				lstMonth.value = 0;
 				lstYear.value = parseInt(lstYear.value) + 1;
 			} else {
-				alert('cannot go further forward');
+				document.getElementById('errModalText').innerHTML = "<p>Cannot go further forward.</p>";
+				openModal('errModal');
 			}
 		}
 	}
@@ -201,12 +218,12 @@ function calBtnsShowHide() {
 	}
 }
 
-function openModal() {
-	document.getElementById("expModal").style.display = "block";
+function openModal(chosenModal) {
+	document.getElementById(chosenModal).style.display = "block";
 }
 
-function closeModal() {
-	document.getElementById("expModal").style.display = "none";
+function closeModal(chosenModal) {
+	document.getElementById(chosenModal).style.display = "none";
 }
 
 /* From Modernizr */

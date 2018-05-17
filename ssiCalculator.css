@@ -63,11 +63,36 @@
 .calendarGrid .header {
 	background-color:#cbdbf4;
 }
+#calendarKey {
+	margin-top:2%;
+	border: 1px #9ba9c1 solid;
+	padding-left: 5%;
+}
 .cDeskHalfHoliday {
-	background-color:green;
+	background-image:
+	linear-gradient(
+		to bottom,
+		transparent,
+		transparent 10%,
+		#56186d 10%,
+		#56186d 18%,
+		transparent 18%
+	);
 }
 .cDeskHoliday {
-	background-color:blue;
+	background-image:
+	linear-gradient(
+		to bottom,
+		transparent,
+		transparent 10%,
+		#56186d 10%,
+		#56186d 18%,
+		transparent 18%,
+		transparent 82%,
+		#56186d 82%,
+		#56186d 90%,
+		transparent 90%
+	);
 }
 .clickable {
 	cursor:pointer;
@@ -91,9 +116,30 @@
 .hidden {
 	display: none;
 }
+.keyButton {
+	position: absolute;
+	margin-left: 90%;
+	font-size:1.8vmax;
+	border-radius:70%;
+	background-color: #FFFFFF;
+	box-shadow: 0 3px 3px #999;
+}
+.keyButton:active {
+	box-shadow:0 1px 3px #666;
+	transform: translateY(2px);
+}
 @keyframes fade {
 	from {opacity: 1;}
 	to {opacity: 0;}
+}
+.keyLine {
+	display:flex;
+}
+.keySquare {
+	width: 1.5em;
+	height: 1.5em;
+	border: 1px #9ba9c1 solid;
+	margin-top: 0.75em;
 }
 .modal {
     display: none; /* Hidden by default */
@@ -125,15 +171,16 @@
     border: 5px solid #47618c;
     width: 80%; /* Could be more or less, depending on screen size */
 }
-.modal-content p {
-	width:95%;
-}
 .modalOpenButton {
 	text-decoration:none;
 	color: #47618c;
 }
 .modalOpenButton:hover, .modalOpenButton:focus {
 	text-decoration:underline;
+}
+.modalTitle {
+	font-size: 120%;
+	font-weight:bold;
 }
 #numLayingDays {
 	font-family:Helvetica;
@@ -147,10 +194,56 @@
 	text-decoration:underline;
 }
 .recessDay {
-	background-color:hsla(0, 100%, 50%, 0.3);
+	background-image:
+	linear-gradient(
+		to bottom,
+		transparent,
+		transparent 18%,
+		#8c551a 18%,
+		#8c551a 26%,
+		transparent 26%,
+		transparent 74%,
+		#8c551a 74%,
+		#8c551a 82%,
+		transparent 82%,
+		transparent 90%
+	);
 }
 .recessDay.cDeskHoliday {
-	background-color:purple;
+	background-image:
+	linear-gradient(
+		to bottom,
+		transparent,
+		transparent 10%,
+		#56186d 10%,
+		#56186d 18%,
+		#8c551a 18%,
+		#8c551a 26%,
+		transparent 26%,
+		transparent 74%,
+		#8c551a 74%,
+		#8c551a 82%,
+		#56186d 82%,
+		#56186d 90%,
+		transparent 90%
+	);
+}
+.recessDay.cDeskHalfHoliday {
+	background-image:
+	linear-gradient(
+		to bottom,
+		transparent,
+		transparent 10%,
+		#56186d 10%,
+		#56186d 18%,
+		#8c551a 18%,
+		#8c551a 26%,
+		transparent 26%,
+		transparent 74%,
+		#8c551a 74%,
+		#8c551a 82%,
+		transparent 82%
+	);
 }
 select {
 	font-size:2vmax;
