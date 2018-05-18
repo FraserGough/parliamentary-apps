@@ -18,10 +18,6 @@ function changeNoOfDays() {
 	calculateRelevantDate();
 }
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 function fade() {
 	var animationEvent = whichAnimationEvent();
 	var appContainer = document.getElementById("appContainer");
@@ -225,6 +221,10 @@ function openModal(chosenModal) {
 
 function closeModal(chosenModal) {
 	document.getElementById(chosenModal).style.display = "none";
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 /* From Modernizr */
