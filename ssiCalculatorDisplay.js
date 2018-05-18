@@ -58,6 +58,7 @@ function init() {
 							+ " after <input type='text' id='numLayingDays' onkeyup='changeNoOfDays()' value='40' /> laying <span id='wdDays'>days</span> is&nbsp;...</p>";
 	document.getElementById("appMain").innerHTML = txtOutput;
 	setDefaults();
+	initializeCalendarControls();
 }
 
 function updateAppMain(change) {
