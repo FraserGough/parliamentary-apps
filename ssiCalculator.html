@@ -13,13 +13,13 @@
 <div id="appCore">
 	<div id="expModal" class="modal">
   		<div class="modal-content">
-    		<span class="modal-close" onclick="closeModal(`expModal`)">&times;</span>
+    		<span class="modal-close" onclick="closeModal('expModal')">&times;</span>
    		 	<div id="expModalText"></div>
   		</div>
 	</div>
 	<div id="keyModal" class="modal">
   		<div class="modal-content">
-    		<span class="modal-close" onclick="closeModal(`keyModal`)">&times;</span>
+    		<span class="modal-close" onclick="closeModal('keyModal')">&times;</span>
    		 	<div id="keyModalText">
    		 		<div class="modalTitle"><p>Key</p></div>
 				<div class="keyLine">
@@ -36,7 +36,7 @@
 	</div>
 	<div id="errModal" class="modal">
 	  		<div class="modal-content">
-    		<span class="modal-close" onclick="closeModal(`errModal`)">&times;</span>
+    		<span class="modal-close" onclick="closeModal('errModal')">&times;</span>
     		<div class="modalTitle"><p>Error</p></div>
    		 	<div id="errModalText"></div>
   		</div>
@@ -48,7 +48,7 @@
 		<div id="appOptions">
 		<p><input type="checkbox" id="chkUseDefault" onchange="showHideOpts()" checked /> use default options</p>
 			<div id='optionsPanel' style='display:none'>
-				<p><input type="checkbox" id="chkClearDays" onchange='calculateRelevantDate()'" /> laying days are to be clear</p>
+				<p><input type="checkbox" id="chkClearDays" onchange="calculateRelevantDate()" /> laying days are to be clear</p>
 				<div id='affirmativeOptionsPanel' style='display:none'>
 					<p><input type="checkbox" id="chkGapBtwnMk" onchange='calculateRelevantDate()' checked /> a gap is required between making and coming into force</p>
 					<p><input type="checkbox" id="chkNoWknds" onchange='calculateRelevantDate()' checked /> the instrument cannot be made on a weekend</p>
