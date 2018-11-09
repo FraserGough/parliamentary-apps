@@ -318,12 +318,17 @@ function getRecessDates(xml) {
 }
 
 function initializeCalendarControls() {
-	var strOutput = '<table><tr><td><input type="button" class="calendarButton" id="btnDatBack" value="&#8592;" onclick="calFwBack(0)"/></td>'
-							+ '<td><select id="month" onchange="writeCalendar()"></select></td>'
-							+ '<td><select id="year" onchange="writeCalendar()"></select></td>'
-							+'<td><input type="button" class="calendarButton" id="btnDatFw" value="&#8594;" onclick="calFwBack(1)"/></td>'
-							+'<td><input type="button" class="keyButton" id="btnCalKey" value="?" onclick="openModal(\'keyModal\')"/></td></tr></table>';
-	document.getElementById("calendarControls").innerHTML  = strOutput;
+	var oUAParser = new UAParser();
+	var strBrowserName = oUAParser.getResult().browser.name;
+	var strBrowserVersion = parseInt(oUAParser.getResult().browser.version);
+	if ((strBrowserName == "IE") || (strBrowserName == "Edge" && strBrowserVersion < 16)) {
+		var strOutput = '<table><tr><td><input type="button" class="calendarButton" id="btnDatBack" value="&#8592;" onclick="calFwBack(0)"/></td>'
+								+ '<td><select id="month" onchange="writeCalendar()"></select></td>'
+								+ '<td><select id="year" onchange="writeCalendar()"></select></td>'
+								+'<td><input type="button" class="calendarButton" id="btnDatFw" value="&#8594;" onclick="calFwBack(1)"/></td>'
+								+'<td><input type="button" class="keyButton" id="btnCalKey" value="?" onclick="openModal(\'keyModal\')"/></td></tr></table>';
+		document.getElementById("calendarControls").innerHTML  = strOutput;
+	}
 	var strOutput = "";
 	var i;
 	var currentDate = new Date();
@@ -361,6 +366,17 @@ function returnRecessBlock(currentDate) {
 		}
 	}
 	return intReturn;
+}
+
+function writeCalendar() {
+	var oUAParser = new UAParser();
+	var strBrowserName = oUAParser.getResult().browser.name;
+	var strBrowserVersion = parseInt(oUAParser.getResult().browser.version);
+	if ((strBrowserName == "IE") || (strBrowserName == "Edge" && strBrowserVersion < 16)) {
+		writeCalenderMS();
+	} else {
+		writeCalendarNormal();
+	}
 }
 
 function writeCalenderMS() {
@@ -413,13 +429,7 @@ function writeCalenderMS() {
 	calMarkSpecialDays(currentMonth, currentYear, daysInMonth);
 }
 
-function writeCalendar() {
-	var oUAParser = new UAParser();
-	var strBrowserName = oUAParser.getResult().browser.name;
-	var strBrowserVersion = oUAParser.getResult().browser.version;
-	alert(strBrowserName + ": " + strBrowserVersion);
-	writeCalenderMS();
-	return;
+function writeCalendarNormal() {
 	var strOutput = "";
 	// put days of week along top row
 	var arrayDaysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
