@@ -318,6 +318,12 @@ function getRecessDates(xml) {
 }
 
 function initializeCalendarControls() {
+	var strOutput = '<table><tr><td><input type="button" class="calendarButton" id="btnDatBack" value="&#8592;" onclick="calFwBack(0)"/></td>'
+							+ '<td><select id="month" onchange="writeCalendar()"></select></td>'
+							+ '<td><select id="year" onchange="writeCalendar()"></select></td>'
+							+'<td><input type="button" class="calendarButton" id="btnDatFw" value="&#8594;" onclick="calFwBack(1)"/></td>'
+							+'<td><input type="button" class="keyButton" id="btnCalKey" value="?" onclick="openModal(\'keyModal\')"/></td></tr></table>';
+	document.getElementById("calendarControls").innerHTML  = strOutput;
 	var strOutput = "";
 	var i;
 	var currentDate = new Date();
@@ -357,7 +363,63 @@ function returnRecessBlock(currentDate) {
 	return intReturn;
 }
 
+function writeCalenderMS() {
+	var strOutput = "<table><tr>";
+	// put days of week along top row
+	var arrayDaysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+	for (var i = 0; i < 7; i++) {
+		var strDayAbbr = arrayDaysOfWeek[i].slice(0, 3);
+		strOutput += "<th>" + strDayAbbr + "</th>";
+	}
+	strOutput += "</tr>";
+	//add days of month
+	var currentMonth = Number(document.getElementById("month").options[document.getElementById("month").selectedIndex].value);
+	var currentYear = Number(document.getElementById("year").options[document.getElementById("year").selectedIndex].value);
+	//get number of days in currentMonth
+	var daysInMonth = 32 - new Date(currentYear, currentMonth, 32).getDate();
+	//get day of first day of currentMonth
+	var firstDate = new Date(String(currentYear) + "/" + String((currentMonth + 1)) + "/" + "01");
+	var firstDay = Number(firstDate.getDay());
+	if (firstDay == 0) {
+		firstDay = 7;
+	}
+	var i = 1 - firstDay + 1;
+	var j = 1;
+	do {
+		if (j == 1) {
+			strOutput += "<tr>";
+		}
+		if (i > 0 && i <= daysInMonth) {
+			strOutput = strOutput + "<td id='date"+ i + "' onclick='fillDate(" + i + ")'>" + i + "</td>";
+		}
+		else {
+			strOutput = strOutput + "<td class='calendarEmptySquare'></td>";
+		}
+		if (j == 7) {
+			strOutput += "</tr>";
+		}
+		i = i + 1;
+		if (j < 7) {
+			j = j + 1;
+		}
+		else {
+			j = 1;
+		}
+	}
+	while  (i <= daysInMonth);
+	strOutput += "</table>"
+	document.getElementById("calendarGrid").innerHTML = strOutput;
+	calBtnsShowHide();
+	calMarkSpecialDays(currentMonth, currentYear, daysInMonth);
+}
+
 function writeCalendar() {
+	var oUAParser = new UAParser();
+	var strBrowserName = oUAParser.getResult().browser.name;
+	var strBrowserVersion = oUAParser.getResult().browser.version;
+	alert(strBrowserName + ": " + strBrowserVersion);
+	writeCalenderMS();
+	return;
 	var strOutput = "";
 	// put days of week along top row
 	var arrayDaysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];

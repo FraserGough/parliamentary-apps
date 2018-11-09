@@ -39,9 +39,9 @@
 	margin-top: 3%;
 }
 #calendarControls {
-	display:flex;
+	display:grid;
+	grid-template-columns: 1fr 3fr 3fr 1fr 1fr;
 	align-items:center;
-	margin-left:35%;
 }
 .calendarGrid {
 	display: grid;
@@ -49,18 +49,18 @@
 	margin-top: 20px;
 	grid-gap: 1px;
 }
-.calendarGrid > div {
+.calendarGrid > div, td, th {
 	text-align:center;
 	line-height:300%;
 	border: 1px #9ba9c1 solid;
 }
-.calendarGrid > div:hover, div:focus {
+.calendarGrid > div:hover, div:focus, td:hover, td:focus {
     cursor: pointer;
 }
-.calendarGrid > div.calendarEmptySquare {
+.calendarGrid > .calendarEmptySquare {
 	border: 0;
 }
-.calendarGrid .header {
+.calendarGrid .header, th {
 	background-color:#cbdbf4;
 }
 #calendarKey {
