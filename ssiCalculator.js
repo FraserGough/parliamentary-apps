@@ -376,7 +376,7 @@ function writeCalendar() {
 	if ((strBrowserName == "IE") || (strBrowserName == "Edge" && strBrowserVersion < 16)) {
 		writeCalenderMS();
 	} else {
-		writeCalenderNormal();
+		writeCalenderNormal()
 	}
 }
 
@@ -430,7 +430,7 @@ function writeCalenderMS() {
 	calMarkSpecialDays(currentMonth, currentYear, daysInMonth);
 }
 
-function writeCalendarNormal() {
+function writeCalenderNormal() {
 	var strOutput = "";
 	// put days of week along top row
 	var arrayDaysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
