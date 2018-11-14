@@ -9,9 +9,6 @@
 #appMain {
 	font-size:4vw;
 	line-height:1.4;
-	@supports (font-size:4vmax) {
-		font-size:4vmax;
-	}
 }
 #appOptions {
 	font-size:2.2vmax;
@@ -20,9 +17,6 @@
 }
 #appOutput {
 	font-size:4vw;
-	@supports (font-size:4vmax) {
-		font-size:4vmax;
-	}
 	line-height:1.4;
 	text-align:center;
 }
