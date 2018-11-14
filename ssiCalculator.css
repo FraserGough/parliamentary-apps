@@ -43,6 +43,13 @@
 	grid-template-columns: 1fr 3fr 3fr 1fr 1fr;
 	align-items:center;
 }
+#calendarControls > td {
+	border:10px solid;
+}
+table {
+	table-layout:fixed;
+	width:600px;
+}
 .calendarGrid {
 	display: grid;
 	grid-template-columns: repeat(7, 1fr);
@@ -100,6 +107,15 @@
 }
 .clickable:hover {
 	text-decoration:underline;
+}
+#calCol {
+	width:14.25%;
+}
+#ctrl1, #ctrl4, #ctrl5 {
+	width: 10%;
+}
+#ctrl2, #ctrl3 {
+	width:35%;
 }
 .fadeIn {
 	animation-name: fade;

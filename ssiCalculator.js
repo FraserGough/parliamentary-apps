@@ -322,7 +322,8 @@ function initializeCalendarControls() {
 	var strBrowserName = oUAParser.getResult().browser.name;
 	var strBrowserVersion = parseInt(oUAParser.getResult().browser.version);
 	if ((strBrowserName == "IE") || (strBrowserName == "Edge" && strBrowserVersion < 16)) {
-		var strOutput = '<table><tr><td><input type="button" class="calendarButton" id="btnDatBack" value="&#8592;" onclick="calFwBack(0)"/></td>'
+		var strOutput = '<table><colgroup><col id="ctrl1"><col id="ctrl2"><col id="ctrl3"><col id="ctrl4"><col id="ctrl5"></colgroup>'
+								+ '<tr><td><input type="button" class="calendarButton" id="btnDatBack" value="&#8592;" onclick="calFwBack(0)"/></td>'
 								+ '<td><select id="month" onchange="writeCalendar()"></select></td>'
 								+ '<td><select id="year" onchange="writeCalendar()"></select></td>'
 								+'<td><input type="button" class="calendarButton" id="btnDatFw" value="&#8594;" onclick="calFwBack(1)"/></td>'
@@ -375,12 +376,12 @@ function writeCalendar() {
 	if ((strBrowserName == "IE") || (strBrowserName == "Edge" && strBrowserVersion < 16)) {
 		writeCalenderMS();
 	} else {
-		writeCalendarNormal();
+		writeCalenderNormal();
 	}
 }
 
 function writeCalenderMS() {
-	var strOutput = "<table><tr>";
+	var strOutput = "<table><colgroup><col class='calCol'><col class='calCol'><col class='calCol'><col class='calCol'><col class='calCol'><col class='calCol'><col class='calCol'></colgroup><tr>";
 	// put days of week along top row
 	var arrayDaysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 	for (var i = 0; i < 7; i++) {
