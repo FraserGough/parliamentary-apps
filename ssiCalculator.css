@@ -7,8 +7,11 @@
 	overflow: hidden;
 }
 #appMain {
-	font-size:4vmax;
+	font-size:4vw;
 	line-height:1.4;
+	@supports (font-size:4vmax) {
+		font-size:4vmax;
+	}
 }
 #appOptions {
 	font-size:2.2vmax;
@@ -16,7 +19,10 @@
 	margin-top:8%;
 }
 #appOutput {
-	font-size:4vmax;
+	font-size:4vw;
+	@supports (font-size:4vmax) {
+		font-size:4vmax;
+	}
 	line-height:1.4;
 	text-align:center;
 }
@@ -44,7 +50,10 @@
 	align-items:center;
 }
 #calendarControls > td {
-	border:10px solid;
+	background-color:red;
+	text-align:center;
+	line-height:300%;
+	border: 1px #9ba9c1 solid;
 }
 table {
 	table-layout:fixed;
@@ -199,8 +208,8 @@ table {
 }
 #numLayingDays {
 	font-family:Helvetica;
-	font-size:4vmax;
-	width:5vmax;
+	font-size:4vw;
+	width:calc(0.9*2em);
 	border:none;
 	background-color:#F5F5F5;
 	color:#1995AD;

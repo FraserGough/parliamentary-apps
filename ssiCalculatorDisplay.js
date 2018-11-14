@@ -13,7 +13,7 @@ function changeNoOfDays() {
 	} else if (elemDays.innerHTML == "day") {
 		elemDays.innerHTML = "days";
 	}
-	document.getElementById("numLayingDays").style.width = (2.2 * strValue.length) + "vmax";
+	document.getElementById("numLayingDays").style.width = (0.8 * strValue.length) + "em";
 	setDefaults();
 	calculateRelevantDate();
 }
