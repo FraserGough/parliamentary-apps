@@ -2,6 +2,54 @@
 <chamberDeskClosedDays>
 
 <day>
+	<date>2020/01/02</date>
+	<time>0</time>
+</day>
+<day>
+	<date>2020/01/01</date>
+	<time>0</time>
+</day>
+<day>
+	<date>2019/12/26</date>
+	<time>0</time>
+</day>
+<day>
+	<date>2019/12/25</date>
+	<time>0</time>
+</day>
+<day>
+	<date>2019/12/24</date>
+	<time>2</time>
+</day>
+<day>
+	<date>2019/11/29</date>
+	<time>0</time>
+</day>
+<day>
+	<date>2019/09/13</date>
+	<time>0</time>
+</day>
+<day>
+	<date>2019/05/27</date>
+	<time>0</time>
+</day>
+<day>
+	<date>2019/05/24</date>
+	<time>0</time>
+</day>
+<day>
+	<date>2019/05/06</date>
+	<time>0</time>
+</day>
+<day>
+	<date>2019/04/22</date>
+	<time>0</time>
+</day>
+<day>
+	<date>2019/04/19</date>
+	<time>0</time>
+</day>
+<day>
 	<date>2019/01/02</date>
 	<time>0</time>
 </day>
