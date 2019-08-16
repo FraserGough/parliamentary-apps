@@ -2,6 +2,26 @@
 <recessPeriods>
 
 <period>
+	<start>2020/12/24</start>
+	<end>2021/01/08</end>
+</period>
+<period>
+	<start>2020/10/10</start>
+	<end>2020/10/25</end>
+</period>
+<period>
+	<start>2020/06/27</start>
+	<end>2020/08/30</end>
+</period>
+<period>
+	<start>2020/04/04</start>
+	<end>2020/04/19</end>
+</period>
+<period>
+	<start>2020/02/08</start>
+	<end>2020/02/16</end>
+</period>
+<period>
 	<start>2019/12/21</start>
 	<end>2020/01/05</end>
 </period>
