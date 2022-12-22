@@ -1,0 +1,570 @@
+<html>
+<head>
+<style>
+#timelineContainer {
+  width:80%;
+  margin-left:auto;
+  margin-right:auto;
+}
+.milestoneContainer {
+  display:grid;
+  grid-template-columns: repeat(10, 1fr);
+  border-bottom: 1px solid black;;
+}
+.milestoneLockStatus {
+  grid-column: 1/2;
+}
+.milestoneName {
+  grid-column: 2/6;
+}
+.milestoneDateArea {
+  grid-column: 6/8;
+}
+.milestoneSettingsBtnContainer {
+  grid-column: 8/9;
+}
+.milestoneSettingsArea {
+  display:none;
+  grid-column: 1/9;
+}
+#calendarContainer {
+  width:40%;
+  margin-left:auto;
+  margin-right:auto;
+  display:grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+.monthPicker {
+  grid-column: 2 / 5;
+}
+.yearPicker {
+  grid-column: 6 / 8;
+}
+#hiddenStorage {
+  display:none;
+}
+.calculationRule > input {
+  width:3em;
+}
+</style>
+<script>
+function toggleSettings(milestoneId) {
+  const target = document.getElementById("settingsArea_" + milestoneId)
+  if (target.style.display == "none" || target.style.display == "") {
+     target.style.display = "block"
+  } else {
+     target.style.display = "none"
+  }
+}
+
+/* --------- prototyping, not made much progress -----
+function drawCalendar() {
+  let selectedYear = document.getElementById("selectedYear").value
+  let selectedMonth = document.getElementById("selectedMonth").value
+  let daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate()
+  let firstDayOfMonth = new Date(selectedYear, (selectedMonth - 1), 1).getDay()
+  if (firstDayOfMonth != 0) {
+    firstDayOfMonth -= 1
+  } else {
+    firstDayOfMonth = 6
+  }
+  let previousDates = document.getElementsByClassName("day")
+  while (previousDates.length > 0) {
+    previousDates[0].remove()
+  }
+  for (let i = 1 - firstDayOfMonth; i <= daysInMonth; i++) {
+    let newDiv = document.createElement("div")
+    if (i >= 1) {
+      newDiv.innerHTML = i
+    }
+    newDiv.classList.add("day")
+    document.getElementById("calendarContainer").appendChild(newDiv)
+  }
+}
+------------- */
+
+function createMilestone(milestoneInfo) {
+  const arrInfo = milestoneInfo.split(",")
+  const id = arrInfo[0]
+  const displayName = arrInfo[1]
+  const stage = arrInfo[2]
+  const isProceedingsDay = arrInfo[3]
+  let strClass = "milestoneContainer"
+  if (isProceedingsDay == "true") {
+    strClass += " proceedingsDay"
+  }
+  const newMilestone = document.createElement("div")
+  newMilestone.className = strClass
+  newMilestone.id = id
+  newMilestone.innerHTML = getMilestoneContent(displayName, id)
+  if (isProceedingsDay == "true" && stage == "stage-1") {
+    document.getElementById("container-" + stage).insertBefore(newMilestone, document.getElementById("leadRpt"))
+  } else {
+    document.getElementById("container-" + stage).appendChild(newMilestone)
+  }
+}
+
+function getMilestoneContent(displayName,id) {
+  const bits = []
+  bits.push("<div id='lock_" + id + "' class='milestoneLockStatus'>X</div>")
+  bits.push("<div id='displayName_" + id + "' class='milestoneName'>" + displayName + "</div>")
+  bits.push("<div id='date_" + id + "' class='milestoneDateArea'><input type='date'></input></div>")
+  bits.push("<div id='settingsBtnContainer_" + id + "' class='milestoneSettingsBtnContainer'><input type='button' onclick='toggleSettings(\"" + id + "\")'></input></div>")
+  if (id.indexOf("_proceedings_") > 0 && document.getElementsByClassName("proceedingsDay").length > 2) {
+    bits.push("<div id='remove_" + id + "' class='milestoneRemove'><input type='button' onclick='removeProceedingsDay(\"" + id + "\")'></input></div>")
+  }
+  bits.push("<div id='settingsArea_" + id + "' class='milestoneSettingsArea'></div>")
+  return bits.join("") 
+}
+
+
+/* --- deprecated, replaced by createMilestone --
+function newMilestone(milestone) {
+  const arrInfo = milestone.split(",")
+  const id = arrInfo[0]
+  const displayName = arrInfo[1]
+  const stage = arrInfo[2]
+  const newMilestone = document.createElement("div")
+  let strClass = "milestoneContainer"
+  if (id.indexOf("_proceedings_") >=0) {
+    strClass += " proceedingsDay"
+  }
+  newMilestone.className = strClass
+  newMilestone.id = id
+  newMilestone.innerHTML = newElementInner(displayName,id)
+  if (id.indexOf("_proceedings_") > 0 && stage == "stage1") {
+    document.getElementById(stage).insertBefore(newMilestone, document.getElementById("leadRpt"))
+  } else {
+    document.getElementById(stage).appendChild(newMilestone)
+  }
+}
+-------*/
+
+
+/* ----------- deprecated, replaced by injectCalculationRules ----
+function populateInfo(targets) {
+  //create array of milestones on which to operate
+  let targetsArray = []
+  if (targets == "all") {
+    const allMilestones = document.getElementsByClassName("milestoneContainer")
+    for (x in allMilestones) {
+      if (allMilestones[x].id != undefined) {
+        targetsArray.push(allMilestones[x].id)
+      }
+    }
+  } else {
+  }
+  //loop that array, updating info for everything in it
+  for (x in targetsArray) {
+    let strInfo = "info" 
+    let target = document.getElementById("info_" + id)
+    if (id == "pre-introNotice") {
+        strInfo = createControl("Notice to be given 5 weeks before [introduction].")
+    } else if (id == "pre-introLetter") {
+        strInfo = createControl("Correspondence to be sent 3 weeks before [introduction].") 
+    } else if (id == "introduction") {
+        strInfo = createControl("Introduction can only happen on a day the Chamber Desk is open.")
+    } else if (id == "leadCmtAssign") {
+        strInfo = createControl("Happens on the Tuesday after [introduction].")
+    } else if (id == "evidenceCall") {
+        strInfo = createControl("Happens 1 weeks after [leadCmtAssign]")
+    } else if (id.indexOf("_proceedings_") > 0) {
+        if (document.getElementById(id).parentNode.id == "stage1") {
+          if (document.getElementById("displayName" + id).getElementsByClassName("dayCount")[0].innerText == "1") {
+            strInfo = createControl("Happens 3 months after [evidenceCall].")
+          } else {
+            strInfo = createControl("Happens 1 weeks after " + document.getElementById(id).previousSibling.id)
+          }
+        }
+    }
+    target.innerHTML = strInfo
+  }
+}
+-----------------*/
+
+/* ---------- deprecated ---------
+function createControl(plainStr) {
+  const uId = "id" + getUID()
+  const unitTypeOptionsArray = ['days','weeks','months']
+  let unitTypeOptions = ""
+  let ruleType = "possibilityRule"
+  let rEx = /\d+/g
+  let match = plainStr.match(rEx)
+  if (match != null) {
+    plainStr = plainStr.replace(match, "<input type='number' id='" + uId + "_units' value='" + match + "'>")
+  }
+  rEx = /\b(?:days|weeks|months)\b/
+  match = plainStr.match(rEx)
+  if (match !=null) {
+    for (let i = 0; i < unitTypeOptionsArray.length; i++) {
+      unitTypeOptions += "<option value='" + unitTypeOptionsArray[i] + "'"
+      if (unitTypeOptionsArray[i] == match) {
+        unitTypeOptions += " selected"
+      }
+      unitTypeOptions += ">" + unitTypeOptionsArray[i] + "</option>" 
+    }
+  } 
+  plainStr = plainStr.replace(match, "<select id='" + uId + "_unitsType' value='" + match + "'>" + unitTypeOptions + "</select>")
+  rEx = /\b(?:before|after)\b/
+  match = plainStr.match(rEx)
+  if (match != null) {
+    plainStr = plainStr.replace(match, "<span id='" + uId + "_direction'>" + match + "</span>")
+    ruleType = "freestandingRule"
+  }
+  rEx = /\[.*?\]/
+  match = plainStr.match(rEx)
+  if (match != null) {
+    plainStr = plainStr.replace(match, "<span id='" + uId + "_linkedMilestone' linkedMsId='" + match[0].substr(1, (match[0].length - 2)) + "'>" + match[0].substr(1, (match[0].length - 2)) + "</span>")
+  }
+  let strOutput = "<div class='calculationInstruction " + ruleType + "' id='" + uId + "'>"
+  strOutput += plainStr
+  strOutput += "</div>"
+  return strOutput
+}
+------------------- */
+
+/* ------------------ proto not in active dev ---------      
+function calculateDate(milestone) {
+  //read milestone's info for how to derive, for now treat all milestones as resting on only one assumptions statement
+  const id = document.getElementById("info_" + milestone).firstChild.id
+  const linkedMilestone = document.getElementById(id + "_linkedMilestone").getAttribute("linkedMsId")
+  const linkedMsDate = document.getElementById("date_" + linkedMilestone).firstChild.value
+  if (linkedMsDate != "") { 
+    let days = document.getElementById(id + "_units").value
+    let unitsType = document.getElementById(id + "_unitsType").value
+    if (unitsType == "weeks") {
+      days = days * 7
+    } else if (unitsType == "months") {
+      days = days * 31
+    }
+    let calculatedDate = new Date(linkedMsDate) 
+    if (document.getElementById(id + "_direction").innerHTML == "before") {
+      calculatedDate.setDate(calculatedDate.getDate() - days)
+    } else {
+      calculateDate.setDate(calculatedDate.getDate() + days)
+    }
+    document.getElementById("date_" + milestone).firstChild.value = calculatedDate.toISOString().split('T')[0]
+  }
+}
+----------------- */
+
+/* -------------- proto not in active dev -----------
+function runCalculations(callingMilestone) {
+  const allMilestones = document.getElementsByClassName("milestoneContainer")
+  for (x in allMilestones) {
+    if (allMilestones[x].id != undefined) {
+      alert(allMilestones[x].id + ": " + allMilestones[x].parentNode.className)
+    }
+  }
+}
+----------------- */
+
+function getUID() {
+  const idNumber = document.getElementById("uIdCount").innerHTML
+  document.getElementById("uIdCount").innerHTML = parseInt(idNumber) + 1
+  return idNumber.toString()
+}
+
+function addProceedingsDay(stage) {
+  let milestonesRequired = 1
+  if (stage != "stage-1") {
+    milestonesRequired = 3
+  }
+  let displayName = ""
+  let idNumber = getUID()
+  let isProceedingsDay = "false"
+  let dayNum = document.getElementById("container-" + stage).getElementsByClassName("proceedingsDay").length + 1
+  for (let i = milestonesRequired; i > 0; i--) {
+    let id = stage
+    if (i == 1) {
+      isProceedingsDay = "true"
+      id += "_proceedings_d"
+      if (stage == "stage-1") {
+        displayName = "committee evidence day"
+      } else {
+        displayName = "day"
+      }
+    } else if (i == 2) {
+      id += "_lodge_NSG_d"
+      displayName = "lodging deadline for day"
+    } else {
+      id += "_lodge_SG_d"
+      displayName = "early lodging target for day"
+    }
+    displayName += " <span class='dayCount'>" + dayNum + "</span>"
+    id += idNumber
+    createMilestone(id + "," + displayName + "," + stage + "," + isProceedingsDay)
+  }
+}
+
+/* ----------- proto not in active dev ------------
+function removeProceedingsDay(inTarget) {
+  const stage = inTarget.substr(1,1)
+  document.getElementById(inTarget).remove()
+  if (stage != "1") {
+    let nTarget = inTarget.replace("_proceedings_", "_lodge_SG_")
+    document.getElementById(nTarget).remove()
+    nTarget = inTarget.replace("_proceedings_", "_lodge_NSG_")
+    document.getElementById(nTarget).remove()
+  }
+  const dayCounts = document.getElementById("stage" + stage).getElementsByClassName("dayCount")
+  let dayCountsPerMilestone = 3
+  if (stage == "1") {
+    dayCountsPerMilestone = 1
+  }
+  if (dayCounts.length > dayCountsPerMilestone) {
+    let dayCounter = 1
+    let substitutionCounter = 1
+    for (let targetText in dayCounts) {
+      dayCounts[targetText].innerHTML = dayCounter
+      substitutionCounter++
+      if (substitutionCounter > dayCountsPerMilestone) {
+        dayCounter++
+        substitutionCounter = 1
+      }
+    } 
+  }
+}
+-------------------- */
+
+function init() {
+  const strMilestones = "pre-introNotice,pre-introduction notice,stage-0,false\
+|pre-introLetter,pre-introduction correspondence,stage-0,false\
+|introduction,Bill introduced,stage-0,false\
+|leadCmtAssign,lead committee assigned,stage-1,false\
+|evidenceCall,call for evidence issued,stage-1,false\
+|leadRpt,lead committee reports,stage-1,false\
+|st1deb,Stage 1 debate,stage-1,false\
+|rAccDocs,new accompanying documents,stage-3,false\
+|ra,Royal Assent,stage-9,false\
+|commence,substantive commencement can begin,stage-9,false"
+
+ const strCalculationRules = "relative,pre-introNotice,5,weeks,before,introduction,noRecess,hasReciprocal\
+ |closedRule,pre-introNotice,noOfficeClosed\
+ |relative,pre-introLetter,3,weeks,before,introduction,noRecess,hasReciprocal\
+ |relative,leadCmtAssign,1,weeks,after,introduction,none,hasReciprocal\
+ |dayRule,leadRpt,mon-tue-wed-thur-fri\
+ |relative,evidenceCall,3,months,before,stage-1_proceedings_FIRST,none,hasReciprocal\
+ |dayRule,stage-1_proceedings_FIRST,tue"
+
+  const arrMilestones = strMilestones.split("|")
+  arrMilestones.forEach(createMilestone)
+  for (let i = 0; i < 2; i++) {
+    addProceedingsDay("stage-1")
+  }
+  addProceedingsDay("stage-2")
+  addProceedingsDay("stage-3")
+
+  const arrRules = strCalculationRules.split("|")
+  arrRules.forEach(injectCalculationRule) 
+}
+
+function injectCalculationRule(ruleInfo) {
+  let ruleContent = "" 
+  const ruleInfoArray = ruleInfo.split(",")
+  const ruleType = ruleInfoArray[0].trim()
+  let milestone1 = ruleInfoArray[1].trim()
+  if (milestone1.indexOf("_FIRST") > 0 || milestone1.indexOf("_LAST") > 0) {
+    milestone1 = getFirstOrLastProceedingsDay(milestone1)
+  }
+  let ruleId = ""
+  let addReciprocal = ""
+  if (ruleType == "relative") {
+    addReciprocal = ruleInfoArray[7].trim()
+    if (addReciprocal == "hasReciprocal") {
+      addReciprocal = "true"
+    } else {
+      addReciprocal = "false"
+    }
+    if (addReciprocal == "false") {
+      ruleId = parseInt(document.getElementById("uIdCount").innerHTML) - 1
+      ruleId = "rule-" + ruleId.toString() + "-R"
+    } else {
+      ruleId = "rule-" + getUID()
+    }
+    const periodNum = ruleInfoArray[2].trim()
+    const periodType = ruleInfoArray[3].trim()
+    let direction = ruleInfoArray[4].trim()
+    const milestone2 = ruleInfoArray[5].trim()
+    const countingRestrictions = ruleInfoArray[6].trim()
+    ruleContent = getRelativeRuleContent(ruleId,periodNum,periodType,direction,milestone2,countingRestrictions) 
+  } else if (ruleType =="closedRule") {
+    ruleId = "rule-" + getUID()
+    ruleContent = getClosedRuleContent(ruleId,ruleInfoArray[2].trim()) 
+  } else if (ruleType =="dayRule") {
+    ruleId = "rule-" + getUID()
+    ruleContent = getDayRuleContent(ruleId,ruleInfoArray[2].trim())
+  }
+  let newRule = document.createElement("div")
+  newRule.id = ruleId
+  newRule.classList.add("calculationRule")
+  newRule.classList.add(ruleType)
+  newRule.innerHTML = ruleContent
+  document.getElementById("settingsArea_" + milestone1).appendChild(newRule)
+  if (ruleType == "relative") {
+    if (addReciprocal == "true") {
+      createReciprocalRule(ruleInfo)
+    }
+  }
+}
+
+function getDisplayName(inputId) {
+  let id = inputId
+  if (inputId.indexOf("_FIRST") > 0 || inputId.indexOf("_LAST") > 0) { 
+    id = getFirstOrLastProceedingsDay(inputId)
+  }
+  return document.getElementById("displayName_" + id).innerHTML
+}
+
+function getDayRuleContent(ruleId,chosenDays) {
+  const daysArray = ["mon","tue","wed","thu","fri","sat","sun"]
+  let checkboxId = ""
+  let strRule = "can happen on "
+  for (let i = 0; i < 7; i++) {
+    checkboxId = daysArray[i] + "-" + ruleId
+    strRule += "<input type='checkbox' id='" + checkboxId + "' "
+    if (chosenDays.indexOf(daysArray[i]) >= 0) {
+      strRule += "checked "
+    }
+    strRule += "value='" + daysArray[i] + "'>"
+    strRule += "<label for='" + checkboxId + "'>" + daysArray[i] + "</label>"
+  }
+  return strRule
+}
+
+function mirrorReciprocal(ruleId) {
+  const callingRule = ruleId.toString()
+  let recipRule = ruleId
+  if (recipRule.indexOf("-R") > 0) {
+    recipRule = recipRule.slice(0,recipRule.indexOf("-R"))
+  } else {
+    recipRule = recipRule + "-R"
+  }
+  const periodNum = document.getElementById("periodNum-" + callingRule).value
+  const periodType = document.getElementById("periodType-" + callingRule).value
+  const milestone2 = document.getElementById("refPoint-" + recipRule).getAttribute("data-targetId")
+  let direction = "before"
+  if (document.getElementById("direction-" + callingRule).innerHTML == "before") {
+    direction = "after"
+  }
+  const countingRestrictions = document.getElementById("countRestrict-" + callingRule).value
+  const newRuleContent = getRelativeRuleContent(recipRule,periodNum,periodType,direction,milestone2,countingRestrictions)
+  document.getElementById(recipRule).innerHTML = newRuleContent 
+}
+
+function getFirstOrLastProceedingsDay(inputId) {
+  const stage = inputId.slice(0,inputId.indexOf("_"))
+  let position = "last"
+  if (inputId.indexOf("_FIRST") > 0) {
+    position = "first"
+  }
+  const relevantProceedingsDays = document.getElementById("container-" + stage).getElementsByClassName("proceedingsDay")
+  if (position == "first") {
+    strDayId = relevantProceedingsDays[0].id
+  } else if (position == "last") {
+    strDayId = relevantProceedingsDays[relevantProceedingsDays.length - 1].id
+  }
+  return strDayId
+}
+
+function getRelativeRuleContent(ruleId,periodNum,periodType,direction,milestone2,countingRestrictions) {
+  let strRule = "happens <input type='number' onchange='mirrorReciprocal(\"" + ruleId + "\")' id='periodNum-" + ruleId + "' value=" + periodNum + "> "
+  let periodOptions = ""
+  const periodTypes = ['days','weeks','months']
+  for (let i = 0; i < periodTypes.length; i++) {
+    periodOptions += "<option value='" + periodTypes[i] + "'"
+    if (periodType == periodTypes[i]) {
+      periodOptions += " selected"
+    }
+    periodOptions += ">" + periodTypes[i] + "</option>"
+  }
+  strRule += "<select id='periodType-" + ruleId + "' onchange='mirrorReciprocal(\"" + ruleId + "\")'>" + periodOptions + "</select> "
+  strRule += "<span id='direction-" + ruleId + "'>" + direction + "</span>"
+  strRule += " <span id='refPoint-" + ruleId + "' data-targetId='" + milestone2 + "'>" + getDisplayName(milestone2) + "</span>"
+  let countRestrictOptions = ""
+  const countRestrictTypes = ['none','noRecess','noOfficeClosed']
+  const countRestrictExps = ['all days count','ignore recesses and dissolutons exceeding 4 days','\
+  ignore days the Chamber Desk is closed']
+  for (i = 0; i < countRestrictTypes.length; i++) {
+    countRestrictOptions += "<option value='" + countRestrictTypes[i] + "'"
+    if (countingRestrictions == countRestrictTypes[i]) {
+      countRestrictOptions += " selected"
+    }
+    countRestrictOptions += ">" + countRestrictExps[i] + "</option>"
+  }
+  strRule += ", <select id='countRestrict-" + ruleId + "' onchange='mirrorReciprocal(\"" + ruleId + "\")'> " + countRestrictOptions + "</select>"
+  return strRule
+}
+
+function getClosedRuleContent(ruleId,closedType) {
+  let ruleExp = ""
+  if (closedType == "noOfficeClosed") {
+    ruleExp = "a day the Chamber Desk is closed"
+  }
+  let strRule = "cannot happen on "
+  strRule += "<span id='closedPeriod-" + ruleId + "' value='" + closedType + "'>" + ruleExp  + "</span>"
+  return strRule
+}
+
+function createReciprocalRule(ruleInfo) {
+  const ruleInfoArray = ruleInfo.split(",")
+  const ruleType = ruleInfoArray[0]
+  const milestone2 = ruleInfoArray[1]
+  const periodNum = ruleInfoArray[2]
+  const periodType = ruleInfoArray[3]
+  let direction = ruleInfoArray[4]
+  if (direction == "after") {
+    direction = "before"
+  } else {
+    direction = "after"
+  }
+  const milestone1 = ruleInfoArray[5]
+  const countingRestrictions = ruleInfoArray[6]
+  const ruleId = ruleInfoArray[7]
+  injectCalculationRule(ruleType+","+milestone1+","+periodNum+","+periodType+","+direction+","+milestone2+","+countingRestrictions+",noReciprocal")
+}
+
+</script>
+</head>
+<body>
+  <input type='button' value='test' onclick="getFirstOrLastProceedingsDay('stage-1','first')">
+  <div id="timelineContainer">
+    <div class="stageContainer" id="container-stage-0"><h1>Pre Stage 1</h1></div>
+    <div class="stageContainer" id="container-stage-1"><h1>Stage 1</h1><input type="button" onclick="addProceedingsDay('1')"></input></div>
+    <div class="stageContainer" id="container-stage-2"><h1>Stage 2</h1><input type="button" onclick="addProceedingsDay('2')"></input></div>
+    <div class="stageContainer" id="container-stage-3"><h1>Stage 3</h1><input type="button" onclick="addProceedingsDay('3')"></input></div>
+    <div class="stageContainer" id="container-stage-9"><h1>Post-passage</h1></div>
+  </div>
+  <div style='display:none' id="calendarContainer">
+    <div class="monthPicker"><select name="selectedMonth" id="selectedMonth" onchange="drawCalendar()">
+     <option value="1">January</option>
+     <option value="2">February</option>
+     <option value="3">March</option>
+     <option value="4">April</option>
+     <option value="5">May</option>
+     <option value="6">June</option>
+     <option value="7">July</option>
+     <option value="8">August</option>
+     <option value="9">September</option>
+     <option value="10">October</option>
+     <option value="11">November</option>
+     <option value="12">December</option>
+    </select></div>
+    <div class="yearPicker"><select name="selectedYear" id="selectedYear" onchange="drawCalendar()">
+     <option value="2021">2021</option>
+     <option value="2022">2022</option>
+    </select></div>
+    <div>Mo</div>
+    <div>Tu</div>
+    <div>We</div>
+    <div>Th</div>
+    <div>Fr</div>
+    <div>Sa</div>
+    <div>Su</div>
+  </div>
+  <div id="hiddenStorage">
+    <div id="uIdCount">0</div>
+  </div>
+<script>init()</script>
+</body>
+</html>
