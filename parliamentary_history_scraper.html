@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bill Document Scraper</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 10px;
+      border: 1px solid #ccc;
+      white-space: pre-wrap;
+    }
+    label {
+      display: block;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Scrape Documents from Local HTML</h1>
+
+  <label>
+    Choose HTML file:
+    <input type="file" id="fileInput" accept=".html,.htm" />
+  </label>
+  <button onclick="scrapeData()">Scrape and Export JSON</button>
+
+  <h2>Scraped JSON Output</h2>
+  <pre id="output">Waiting for input...</pre>
+
+  <script>
+    let htmlContent = "";
+    let leadCommittee = "";
+
+    document.getElementById('fileInput').addEventListener('change', function (event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        htmlContent = e.target.result;
+        document.getElementById('output').textContent = "File loaded. Click 'Scrape and Export JSON'.";
+      };
+      reader.readAsText(file);
+    });
+
+		function findConsideringBody(element,stage) {
+      if (stage == 3) {
+      console.log(element.textContent + " stage " + stage)
+        return "Chamber";
+      }
+  		let current = element.previousElementSibling;
+      let nameString = "Unknown"
+		  while (current) {
+		    const tag = current.tagName.toLowerCase();
+		    const isHeading = tag.startsWith('h') && tag.length === 2 && !isNaN(tag[1]);
+   		  if (isHeading && current.textContent.toLowerCase().includes("committee")) {
+          console.log(current.textContent.trim());
+          let nameString = current.textContent.trim();
+          if (nameString.toLowerCase().includes("lead committee")) {
+            nameString = leadCommittee
+          }
+          nameString = nameString.replace(/^[\s\S]*?\bthe\b\s*/i, '');
+		      return nameString; // Found the heading
+        } else if (isHeading && current.textContent.toLowerCase().includes("stage 1 debate")) {
+          return  nameString = "Chamber";
+        }
+	    current = current.previousElementSibling;
+		  }
+  	return nameString; // No matching heading found
+		}
+
+		function formatDateToLongString(dateStr) {
+			const date = new Date(dateStr);
+			if (isNaN(date)) return null; // Invalid date
+
+			const day = date.getDate(); // returns 1–31
+			const month = date.toLocaleString('en-GB', { month: 'long' }); // "June"
+			const year = date.getFullYear();
+
+			return `${day} ${month} ${year}`;
+		}
+
+function formatAsIsoDateLocal(date) {
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0'); // 0-based month
+  const dd = String(date.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+
+    function getStage(element) {
+      const stageAncestor = element.closest('[id^="target-"]');
+      return stageAncestor ? stageAncestor.id.split("-")[1].trim() : null;
+    }
+
+    function getBillNumSuffix(stage, displayName) {
+      if (!displayName.includes("Marshalled List") && !displayName.includes("Groupings")) {
+        return String.fromCharCode(64 + stage);
+      } else {
+        if (stage === 1) {
+          return "";
+        } else {
+          return String.fromCharCode(64 + (stage - 1))
+        }
+      }
+    }
+
+async function findBillReferenceByTitle(title) {
+  const url = 'https://data.parliament.scot/api/bills/xml';
+
+  try {
+    const response = await fetch(url);
+    const xmlText = await response.text();
+
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+
+    const bills = Array.from(xmlDoc.getElementsByTagName("Bill"));
+
+    // Search backwards
+    for (let i = bills.length - 1; i >= 0; i--) {
+      const bill = bills[i];
+      const fullName = bill.getElementsByTagName("FullName")[0]?.textContent.trim();
+
+      if (fullName === title) {
+        let reference = bill.getElementsByTagName("Reference")[0]?.textContent.trim();
+        reference = reference.replace("SP Bill","").trim();
+        return reference;
+      }
+    }
+
+    return null; // No match found
+  } catch (err) {
+    console.error("Error fetching or parsing XML:", err);
+    return null;
+  }
+}
+
+
+    async function scrapeData() {
+      if (!htmlContent) {
+        alert("Please load an HTML file first.");
+        return;
+      }
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlContent, 'text/html');
+			const billTitle = doc.querySelector('title').textContent.split("|")[0].trim();
+      const billNumber = await findBillReferenceByTitle(billTitle);
+      //set global var leadCommittee
+			leadCommittee = "Unknown Committee";
+			const paras = doc.querySelectorAll('p');
+			for (let p of paras) {
+				const text = p.textContent.trim();
+				if (text.includes("The lead committee for this Bill is")) {
+					leadCommittee = p.querySelector('a').textContent;
+					break;
+				}
+			}
+      //get all the blocks for entries
+      const blocks = doc.querySelectorAll(`
+          div.bills-date-link-block,
+          span.link-block,
+          a[href^="https://digitalpublications.parliament.scot/Committees/Report/"]
+        `);
+      const results = [];
+      let date = ""
+      let reference = ""
+      let displayName = ""
+      let link = ""
+      let url = ""
+      blocks.forEach(block => {
+        // get the bill stage for the current block
+        const stage = getStage(block);
+        // handle commmittee reports - most of this needs to be left for AI to look up pdfs later
+				if (block.tagName.toLowerCase() === "a") {
+          date = '?';
+          reference = block.getAttribute('href');
+          displayName = 'Committee report';
+			    url = block.getAttribute('href');
+					results.push({
+						stage,
+          	displayName,
+          	date,
+          	url,
+          	reference
+        	})
+          return;	
+        }
+        const link = block.querySelector('a');
+        if (!link) return;
+        const displayText = link.textContent.trim();
+        url = link.href;
+        // Extract a readable date (e.g., "28 June 2022")
+        const dateMatch = block.textContent.match(/\d{1,2} \w+ \d{4}/);
+        const dateObj = new Date(dateMatch);
+        date = dateObj ? formatAsIsoDateLocal(dateObj) : null;
+				// handle bill documents
+				if (block.className === 'link-block') {
+          // only pull in certain documents
+          const billDocsKeywords = [
+            "Explanatory Notes",
+            "Policy Memorandum",
+            "Financial Memorandum",
+            "Delegated Powers Memorandum",
+            "Groupings",
+            "Marshalled List",
+            "Bill as introduced",
+            "Bill as amended",
+            "Bill as passed"
+            ]
+					const matchedKnownDoc =  billDocsKeywords.some(keyword => displayText.includes(keyword));
+					if (!matchedKnownDoc) {
+						return;
+					}
+          // now sort out display name
+          displayName = displayText.replace(/\s*\([^()]*\)\s*$/, "");
+          // now sort out the reference
+          reference = "SP Bill " + billNumber;
+          if (stage > 1) {
+            reference += getBillNumSuffix(stage - 1,displayName);
+          }
+          reference += " " + billTitle;
+          reference += " [" + displayName.toLowerCase() + "] Session 6 (";
+          reference += dateObj.getFullYear() + ")";
+				}
+				// handle committee and chamber meetings
+				if (block.className === 'bills-date-link-block') {
+					if (url.indexOf("official-report") === -1) {
+						return;
+					}
+				// displayName & reference
+          const consideringBody = findConsideringBody(block,stage);
+          displayName = consideringBody + ", " + formatDateToLongString(date);
+          reference = "SP OR " + consideringBody + " " + formatDateToLongString(date); 
+				}
+				
+        const exists = results.some(d => d.displayName === displayName);
+				if (!exists) {
+					results.push({
+						stage,
+          	displayName,
+          	date,
+          	url,
+          	reference
+        	})
+				};
+      });
+
+      // Display formatted JSON
+      document.getElementById('output').textContent = JSON.stringify(results, null, 2);
+    }
+  </script>
+
+</body>
+</html>
+
