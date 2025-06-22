@@ -22,7 +22,7 @@
 </head>
 <body>
 
-  <h1>Scrape Documents from Local HTML</h1>
+  <h1>Scrape parliamentary history from Local HTML</h1>
 
   <label>
     Choose HTML file:
@@ -32,6 +32,7 @@
 
   <h2>Scraped JSON Output</h2>
   <pre id="output">Waiting for input...</pre>
+  <button onclick="downloadOutput()">Download JSON</button>
 
   <script>
     let htmlContent = "";
@@ -48,6 +49,37 @@
       };
       reader.readAsText(file);
     });
+
+    function downloadOutput() {
+      const outputText = document.getElementById('output').textContent;
+      const blob = new Blob([outputText], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "bill_documents.json"; // Change filename if needed
+      document.body.appendChild(a); // Required for Firefox
+      a.click();
+      document.body.removeChild(a); // Clean up
+      URL.revokeObjectURL(url);     // Free memory
+    }
+
+    function getSuffix(displayName) {
+    const lowerName = displayName.toLowerCase();
+
+    const rules = [
+      { match: "explanatory notes", suffix: "EN" },
+      { match: "financial memorandum", suffix: "FM" },
+      { match: "revised financial memorandum", suffix: "FM" },
+      { match: "supplementary financial memorandum", suffix: "FM" },
+      { match: "policy memorandum", suffix: "PM" },
+      { match: "delegated powers memorandum", suffix: "DPM" },
+      { match: "supplementary delegated powers memorandum", suffix: "DPM" },
+      { match: "groupings", suffix: "G" },
+      { match: "marshalled list", suffix: "ML" },
+      ];
+    const rule = rules.find(r => lowerName.includes(r.match));
+    return rule ? rule.suffix : null; // or fallback suffix
+    }
 
 		function findConsideringBody(element,stage) {
       if (stage == 3) {
@@ -220,14 +252,30 @@ async function findBillReferenceByTitle(title) {
 						return;
 					}
           // now sort out display name
+          // get rid of trailing bracketed material
           displayName = displayText.replace(/\s*\([^()]*\)\s*$/, "");
+          // strip out name of bill for reference
+          let refDisplayName = displayName;
+          const billItselfNames = [
+            "Bill as introduced",
+            "Bill as amended",
+            "Bill as passed",
+          ]
+          const billItself = billItselfNames.some(keyword => displayName.includes(keyword));
+          if (billItself) {
+            refDisplayName = "as " + displayName.split(" as")[1].trim();
+          }
           // now sort out the reference
           reference = "SP Bill " + billNumber;
           if (stage > 1) {
             reference += getBillNumSuffix(stage - 1,displayName);
           }
+          const docSuffix = getSuffix(displayName);
+          if (docSuffix != null) {
+            reference += "-" + docSuffix
+          }
           reference += " " + billTitle;
-          reference += " [" + displayName.toLowerCase() + "] Session 6 (";
+          reference += " [" + refDisplayName.toLowerCase() + "] Session 6 (";
           reference += dateObj.getFullYear() + ")";
 				}
 				// handle committee and chamber meetings
