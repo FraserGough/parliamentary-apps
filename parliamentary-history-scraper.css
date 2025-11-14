@@ -1,0 +1,22 @@
+body {
+	font-family: sans-serif;
+	padding: 20px;
+}
+pre {
+	background: #f4f4f4;
+	padding: 10px;
+	border: 1px solid #ccc;
+	white-space: pre-wrap;
+}
+label {
+	display: block;
+	margin-bottom: 10px;
+}
+tr.header {
+	text-align:left;
+	font-weight:bold;	
+}
+td.interstitial {
+	text-align:center;
+	font-weight:bold;
+}
