@@ -2,29 +2,66 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Bill Document Scraper</title>
+  <title>Parliamentary history scraper</title>
   <link rel="stylesheet" href="parliamentary-history-scraper.css">
   <script src="parliamentary-history-scraper.js"></script>
 </head>
 <body>
-  <h1>Scrape parliamentary history</h1>
-  <label>
-    Choose HTML file:
-    <input type="file" id="fileInput" accept=".html,.htm" />
-  </label>
-  <button onclick="scrapeData()">Scrape and Export JSON</button>
-  <h2>Scraped JSON Output</h2>
-  <pre id="output" class="jsonOutput">Waiting for input...</pre>
-  <div id="publicationsInputs"></div>
-  <button onclick="downloadJsonOutput()">Download JSON</button>
-  <h2>Operate on output JSON</h2>
-  <label>
-    Choose JSON file:
-    <input type="file" id="jsonFileInput" accept=".json" />
-  </label>
-  <button onclick="buildHtmlTable()">Create tbl</button>
-  <div id="htmlOutput"></div>
-  <button onclick="downloadHtml()">Download HTML</button>
+  <header>
+    <h1>Parliamentary history scraper</h1>
+    <p id="versionInfo"></p>
+  </header>
+  <main>
+    <section id='getData' class='row'>
+      <div class="column">
+        <h2>Scrape data</h2>
+        <ol>
+          <li>Save Bill page from <a href='https://www.parliament.scot/bills-and-laws/bills?qry=&billType=&billStage=Stage+3' target='_blank'>Parliament's website</a> as single html file</li>
+          <li>
+            <label>Provide path to file
+              <input type="file" id="fileInput" accept=".html,.htm" />
+            </label>
+           </li>
+           <li>
+             <label>Scrape data from file
+              <button onclick="scrapeData()">Scrape file</button>
+             </label>
+          </li>
+        </ol>
+      </div>
+      <div class="column">
+        <h2>Upload data</h2>
+        <label>
+          Choose json file:<br />
+          <input type="file" id="jsonFileInput" accept=".json" />
+        </label>
+      </div>
+    </section>
+    <section id='reviewData'>
+      <div class="noColumn">
+        <h2>Review data</h2>
+        <details>
+          <summary>see json</summary>
+          <pre id="output" class="jsonOutput">Waiting for input...</pre>
+        </details>
+        <div id="publicationsInputs"></div>
+      </div>
+    </section>
+    <section id='downloadData' class='hidden'>
+      <h2>(Optional) download data</h2>
+      <button onclick="downloadJsonOutput()">Download data (json)</button>
+    </section>
+    <section id='generateTable' class='hidden'>
+      <h2>Generate table</h2>
+      <button onclick="buildHtmlTable()">Create tbl</button>
+      <div id="htmlOutput"></div>
+    </section>
+    <section id='downloadTable' class='hidden'>
+      <h2>Download table</h2>
+      <button onclick="downloadHtmlTable()">Download table (html)</button>
+    </section>
+  </main>
+  <script>setVersion()</script>
   <script>
     document.getElementById('fileInput').addEventListener('change', function (event) {
       const file = event.target.files[0];
@@ -33,7 +70,7 @@
       const reader = new FileReader();
       reader.onload = function (e) {
         htmlContent = e.target.result;
-        document.getElementById('output').textContent = "File loaded. Click 'Scrape and Export JSON'.";
+        document.getElementById('output').textContent = "File loaded. Click 'Scrape file'.";
       };
       reader.readAsText(file);
     })
@@ -45,6 +82,8 @@
       const reader = new FileReader();
       reader.onload = function (e) {
         jsonContent = e.target.result;
+        document.getElementById('output').textContent = jsonContent
+        document.getElementById('generateTable').classList.remove('hidden')
       };
       reader.readAsText(file);
     })

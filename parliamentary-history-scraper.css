@@ -2,6 +2,16 @@ body {
 	font-family: sans-serif;
 	padding: 20px;
 }
+.row {
+	display: flex;
+}
+.column {
+	width:50%;
+	padding-right:10%;
+}
+li {
+	margin-bottom: 10px;
+}
 pre {
 	background: #f4f4f4;
 	padding: 10px;
@@ -19,4 +29,14 @@ tr.header {
 td.interstitial {
 	text-align:center;
 	font-weight:bold;
+}
+#publicationInputs {
+	margin-right:50px;
+}
+textarea {
+	width:80%;
+	height:200px;
+}
+.hidden {
+	display: none;
 }

@@ -1,4 +1,5 @@
 // global vars
+const version = "0.9"
 let htmlContent = ""
 let jsonContent = ""
 let leadCommittee = ""
@@ -6,6 +7,22 @@ let doc = ""
 let results = []
 let sessionObject = {}
 let cmtAbbrsDictionary = {}
+let billTitle = ""
+
+async function randomTesting() {
+	await createSessionObject()
+	await buildCommitteeAbbrsDictionary()
+	console.log(typeof cmtAbbrsDictionary)
+	console.log(cmtAbbrsDictionary instanceof Map)
+	for (const [key, value] of cmtAbbrsDictionary.entries()) {
+		console.log(value)
+		console.log(`${value}`)
+	}
+}
+
+function setVersion() {
+	document.getElementById('versionInfo').textContent = "js: " + version
+}
 
 async function scrapeData() {
 	if (!htmlContent) {
@@ -16,25 +33,36 @@ async function scrapeData() {
 	await	buildCommitteeAbbrsDictionary()	
 	const parser = new DOMParser()
 	doc = parser.parseFromString(htmlContent, 'text/html')
-	const billTitle = doc.querySelector('title').textContent.split("|")[0].trim()
+	billTitle = doc.querySelector('title').textContent.split("|")[0].trim()
 	//having extracted title from <head> for efficiency from here on only need to look in body
 	doc = doc.getElementById("main")
 	const billNumber = await findBillNumberByTitle(billTitle)
 	leadCommittee = getLeadCommittee()
-	getBillDocs(billNumber, billTitle)
+	getBillDocs(billNumber)
 	getOfficialReports()
 	//output
 	document.getElementById('output').textContent = JSON.stringify(results, null, 2)
 	//seek additional info for publications
 	await addPromptsForPublications()
-	mergeJson()
+	document.getElementById('downloadData').classList.remove('hidden')
+	document.getElementById('generateTable').classList.remove('hidden')
 }
 
 function mergeJson() {
+	// test if there are json strings to merge, end if not
+	if (document.getElementsByClassName("publicationInfo").length < 1) {
+		return
+	}
 	const jsonTextStrings = document.getElementsByClassName('jsonOutput')
 	let mergeString = ""
 	for (let i = 0; i < jsonTextStrings.length; i++) {
-		const fullText = jsonTextStrings[i].textContent
+		const tag = jsonTextStrings[i].tagName.toLowerCase()
+		let fullText = ""
+		if (tag === "textarea") {
+			fullText = jsonTextStrings[i].value
+		} else {
+			fullText = jsonTextStrings[i].textContent
+		}
 		const jsonText = fullText.slice(1,(fullText.length - 2))
 		mergeString += jsonText
 		if (i != jsonTextStrings.length - 1) {
@@ -43,10 +71,13 @@ function mergeJson() {
 	}
 	mergeString = "[" + mergeString + "]"
 	document.getElementById('output').textContent = mergeString
+	document.getElementById('publicationsInputs').remove()
 }
 
-function buildHtmlTable() {
+async function buildHtmlTable() {
 	let htmlString = ""
+	await mergeJson()
+	jsonContent = document.getElementById('output').textContent
 	// sort the json chronologically
 	const jsonObj = JSON.parse(jsonContent)
 	jsonObj.sort((a,b) => {
@@ -68,7 +99,8 @@ function buildHtmlTable() {
 			}
 		}
 	})
-	htmlString = "<table><tr class='header'><th>Proceedings and reports</td><td>Reference</th></tr>"
+	htmlString = "<details><summary>see html</summary>"
+	htmlString += "<table><tr class='header'><th>Proceedings and reports</td><td>Reference</th></tr>"
 	let stageTracker = 0
 	Object.keys(jsonObj).forEach(key => {
 		const innerJson = JSON.parse(JSON.stringify(jsonObj[key]))
@@ -81,9 +113,10 @@ function buildHtmlTable() {
 		htmlString += "<td><a href='" + innerJson.url + "'>" + innerJson.reference + "</a></td></tr>"
 	})
 	htmlString += "<tr><td class='interstitial' colspan='2'>Post passage</td></tr>"
-	htmlString += "<tr><td>[short title]</td><td>[year] asp [number]</td></tr>"
-	htmlString += "</table>"
+	htmlString += "<tr><td>Royal Assent, [date]</td><td>[year] asp [number]</td></tr>"
+	htmlString += "</table></details>"
 	document.getElementById('htmlOutput').innerHTML = htmlString
+	document.getElementById('downloadTable').classList.remove('hidden')
 }
 
 async function createSessionObject() {
@@ -131,7 +164,10 @@ async function getParliamentOpenData(dataSet,format) {
 }
 
 async function addPromptsForPublications() {
-	let output = ""
+	let output = `<p>The text boxes below show information about publications
+	(typically committee reports) data for which cannot easily be scraped from
+	the Parliament's website so the text boxes provide an opportunity to fill
+	in some blanks.</p>`
 	const blocks = doc.querySelectorAll('a')
 	const publicationDomains = [
 		"digitalpublications.parliament.scot",
@@ -153,18 +189,6 @@ async function addPromptsForPublications() {
 		if (url.includes("/ResearchBriefings/")) {
 			continue
 		}
-		/*
-		let committee = ""
-		console.log(typeof cmtAbbrsDictionary)
-		console.log(cmtAbbrsDictionary instanceof Map)
-		cmtAbbrsDictionary.forEach((name, abbr) => {
-			console.log("looping cmtAbbrsDictionary")
-			console.log("name " + name + "; abbr " + abbr)
-			if (url.includes("/" + abbr + "/")) {
-				committee = name
-				return
-			}
-		})*/
 		const results = []
 		const stage = getStage(blocks[i])
 		const publicationData = await extractPublicationDataFromUrl(url)
@@ -189,19 +213,45 @@ async function addPromptsForPublications() {
 			reference
 		})
 		const textAreaContent = JSON.stringify(results, null, 2)
-		output += "<div class='publicationInfo'>"
-		output += "<p><a target='_blank' href=' " + url + "'>Download this page</a>, and then</p>"
-		output += "<br /><input class='publicationInput' type='file' accept='.html,.htm'>"
-		output += "<br /><textArea class='jsonOutput'>"
+		output += "<div class='publicationInfo' id='publicationInfo-" + i + "'>"
+		output += "<p><a target='_blank' href=' " + url + "'>Publication page</a></p>"
+		output += `<label><input onchange='showPullDataButton(` + i + `)'
+		id='input-` + i + `' type='file' class='publicationInput' accept='.html,.htm'></label>`
+		output += "<br /><textArea id='textArea-" + i + "' class='jsonOutput'>"
 		output += textAreaContent
-		output += "</textArea></div>"
+		output += "</textArea>"
+		output += "<button onclick='extractPublicationInfo(" + i + ")' class='hidden'>pull data</button>"
+		output += "</div>"
 		output += "<hr />"
 	}
 	document.getElementById('publicationsInputs').innerHTML = output
-  const newFileInputs =	document.getElementsByClassName('publicationInput')
-	for (input of newFileInputs) {
-		input.addEventListener('change', extractHtmlFromInputFile)
+}
+
+function showPullDataButton(id) {
+	document.querySelector('#publicationInfo-' + id + ' button').classList.remove('hidden')
+}
+
+async function extractPublicationInfo(id) {
+	const input = document.getElementById('input-' + id)
+	const file = input.files[0]
+	if (!file) return
+	const reader = new FileReader()
+	reader.onload = (e) => {
+		pageHtml = e.target.result
 	}
+	reader.onerror = () => {
+		console.log("failed to read file")
+	}
+	await reader.readAsText(file)
+	const parser = new DOMParser()
+	const doc = parser.parseFromString(pageHtml, 'text/html')
+	const publicationTitle = doc.querySelector('title').textContent.split("|")[0].trim()
+	const textArea = document.getElementById('textArea-' + id)
+	let textContent = textArea.value
+	if (publicationTitle != "") {
+		textContent = textContent.replace("[report title]", publicationTitle)
+	}
+	textArea.textContent = textContent	
 }
 
 function extractPublicationDataFromUrl(url) {
@@ -243,20 +293,6 @@ function extractPublicationDataFromUrl(url) {
 		returnObject = null
 	}
 	return returnObject
-}
-
-function extractHtmlFromInputFile(event) {
-	const file = event.target.files[0]
-	if (!file) return
-	const groupContainer = event.currentTarget.closest('.publicationInfo')
-	const outputArea = groupContainer.querySelector('.jsonOutputArea')
-	const reader = new FileReader()
-	reader.onload = function(e) {
-		htmlContent = e.target.result
-		const jsonOutput = getPublicationDetails()
-		outputArea.textContent = jsonOutput
-	}
-	reader.readAsText(file)
 }
 
 function getPublicationDetails() {
@@ -324,38 +360,6 @@ async function findBillNumberByTitle(title) {
 	}
 }
 
-async function findBillNumberByTitleDeprecated(title) {
-// gets the bill number by searching open data for most recent bill with extracted title
-	const url = 'https://data.parliament.scot/api/bills/xml';
-
-	try {
-		const response = await fetch(url);
-		const xmlText = await response.text();
-
-		const parser = new DOMParser();
-		const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-
-		const bills = Array.from(xmlDoc.getElementsByTagName("Bill"));
-
-		// Search backwards
-		for (let i = bills.length - 1; i >= 0; i--) {
-			const bill = bills[i];
-			const fullName = bill.getElementsByTagName("FullName")[0]?.textContent.trim();
-
-			if (fullName === title) {
-				let reference = bill.getElementsByTagName("Reference")[0]?.textContent.trim();
-				reference = reference.replace("SP Bill","").trim();
-				return reference;
-			}
-		}
-
-		return null; // No match found
-	} catch (err) {
-		console.error("Error fetching or parsing XML:", err);
-		return null;
-	}
-}
-
 function getLeadCommittee() {
 	const paras = doc.querySelectorAll('p')
 	for (let p of paras) {
@@ -368,7 +372,7 @@ function getLeadCommittee() {
 	return "Unknown committee"
 }
 
-async function getBillDocs(billNumber, billTitle) {
+async function getBillDocs(billNumber) {
 	const blocks = doc.querySelectorAll('span.link-block')
 	//bill doc types to include
 	const billDocsKeywords = [
@@ -382,6 +386,7 @@ async function getBillDocs(billNumber, billTitle) {
 		"Bill as amended",
 		"Bill as passed"
 	]
+	let shortTitle = ""
 	for (let i = 0; i < blocks.length; i++) {
 		const link = blocks[i].querySelector('a')
 		if (!link) { continue }
@@ -398,9 +403,11 @@ async function getBillDocs(billNumber, billTitle) {
 		let descriptor = ""
 		displayName = displayName.replace(/\s*\([^()]*\)\s*$/, "")
 		if (displayName.includes(" as ")) {
-			const iString = displayName.split(" as ")[1].trim()
-			displayName = "Bill as " + iString
-			descriptor =  "as " + iString
+			const nameElements = displayName.split(" as ")
+			shortTitle = nameElements[0].trim()
+			const state = nameElements[1].trim()
+			displayName = "Bill as " + state
+			descriptor =  "as " + state
 		}
 		if (descriptor === "") {
 			descriptor = displayName.toLowerCase()
@@ -410,7 +417,7 @@ async function getBillDocs(billNumber, billTitle) {
 		if (stage > 1) {
 				reference += getBillNumSuffix(stage - 1, displayName)
 		}
-		reference += " " + billTitle
+		reference += " " + shortTitle
 		reference += " [" + descriptor + "]"
 		reference += " Session " + sessionObject.number
 		reference += " (" + year + ")"
@@ -443,43 +450,76 @@ function getStage(element) {
 	}
 }
 
-function downloadJsonOutput() {
-// download json results
-	const outputText = document.getElementById('output').textContent;
-	const blob = new Blob([outputText], { type: "application/json" });
-	const url = URL.createObjectURL(blob);
-	const a = document.createElement("a");
-	a.href = url;
-	a.download = "bill_documents.json"; 
-	document.body.appendChild(a); // Required for Firefox
-	a.click();
-	document.body.removeChild(a); // Clean up
-	URL.revokeObjectURL(url);     // Free memory
+async function downloadJsonOutput() {
+	await mergeJson()
+	const outputText = document.getElementById('output').textContent
+	const blob = new Blob([outputText], { type: "application/json" })
+	const url = URL.createObjectURL(blob)
+	const a = document.createElement("a")
+	a.href = url
+	a.download = getDownloadName() + ".json" 
+	document.body.appendChild(a) // Required for Firefox
+	a.click()
+	document.body.removeChild(a) // Clean up
+	URL.revokeObjectURL(url)     // Free memory
 }
 
-async function downloadHtml() {
-// download html
+async function downloadHtmlTable() {
+	/* before returning to Github, comment out hard path in favour of relative */
 	const templatePath = "parliamentary-history-scraper-output-table-template.html"
+//	const templatePath = "https://frasergough.github.io/parliamentary-apps/parliamentary-history-scraper-output-table-template.html"
+	let htmlContent = ""
 	try {
 		const response = await fetch(templatePath)
 		if (!response.ok) {
 			throw new Error(`Failed to fetch template`)
 		}
-		let html = await response.text()
+		htmlContent = await response.text()
 	} catch (err) {
 		console.error("Error getting template", err)
 	}
-	html = html.replace("{{BILL TITLE}}","bill title")
-	html = html.replace("{{TABLE}}", document.getElementById().textContent)
-	const blob = new Blob([html], { type: "text/html" });
-	const url = URL.createObjectURL(blob);
-	const a = document.createElement("a");
-	a.href = url;
-	a.download = "bill_documents.json"; 
-	document.body.appendChild(a); // Required for Firefox
-	a.click();
-	document.body.removeChild(a); // Clean up
-	URL.revokeObjectURL(url);     // Free memory
+	if (htmlContent === "") { return }
+	htmlContent = htmlContent.replace("{{BILL TITLE}}", billTitle)
+	htmlContent = htmlContent.replace("{{TABLE}}", document.querySelector('#htmlOutput table').outerHTML)
+	const blob = new Blob([htmlContent], { type: "text/html" });
+	const url = URL.createObjectURL(blob)
+	const a = document.createElement("a")
+	a.href = url
+	a.download = getDownloadName() + ".html"
+	document.body.appendChild(a) // Required for Firefox
+	a.click()
+	document.body.removeChild(a) // Clean up
+	URL.revokeObjectURL(url)     // Free memory
+}
+
+function getDownloadName() {
+	const dateObj = new Date()
+	const dateStr = formatAsIsoDateLocal(dateObj)
+	if (billTitle === "") {
+		billTitle = getBillTitle()
+	}
+	let plainTitle = billTitle.toLowerCase()
+	plainTitle = plainTitle.replaceAll(" ","-")
+	plainTitle = plainTitle.replaceAll("(","-")
+	plainTitle = plainTitle.replaceAll(")","-")
+	return dateStr + "_" + plainTitle + "_" + "parliamentary-history"
+}
+
+function test() {
+	getDownloadName()
+}
+
+function getBillTitle() {
+	let string = document.getElementById('output').textContent
+	let endPos = string.indexOf("[as passed]")
+	let startPos = string.lastIndexOf('"SP Bill', endPos)
+	string = string.slice(startPos, endPos)
+	stringArray = string.split(" ")
+	string = ""
+	for (let i = 3; i < stringArray.length; i++) {
+		string += stringArray[i] + " "	
+	}
+	return string.trim()
 }
 
 function getSuffix(displayName) {
@@ -500,31 +540,6 @@ const rule = rules.find(r => lowerName.includes(r.match));
 return rule ? rule.suffix : null; // or fallback suffix
 }
 
-function findConsideringBodyDeprecated(element,stage) {
-// for proceedings, looks back up the DOM to find which body's proceedings
-	if (stage == 3) {
-		return "Chamber";
-	}
-	let current = element.previousElementSibling;
-	let nameString = "Unknown"
-	while (current) {
-		const tag = current.tagName.toLowerCase();
-		const isHeading = tag.startsWith('h') && tag.length === 2 && !isNaN(tag[1]);
-		if (isHeading && current.textContent.toLowerCase().includes("committee")) {
-			let nameString = current.textContent.trim();
-			if (nameString.toLowerCase().includes("lead committee")) {
-				nameString = leadCommittee
-			}
-			nameString = nameString.replace(/^[\s\S]*?\bthe\b\s*/i, '');
-			return nameString; // Found the heading
-		} else if (isHeading && current.textContent.toLowerCase().includes("stage 1 debate")) {
-			return  nameString = "Chamber";
-		}
-	current = current.previousElementSibling;
-	}
-return nameString; // No matching heading found
-}
-
 function findConsideringBody(element,stage) {
 	let consideringBody = ""
 	if (element.href.includes("/meeting-of-parliament-")) {
@@ -534,13 +549,18 @@ function findConsideringBody(element,stage) {
 		let currentBlock = dateBlock
 		while (currentBlock) {
 			const tag = currentBlock.tagName.toLowerCase()
-			const currentBlockText = currentBlock.textContent
 			const currentBlockIsHeading = tag.startsWith('h') && tag.length === 2 && !isNaN(tag[1])
-			if (currentBlockIsHeading && currentBlockText.toLowerCase().includes("committee")) {
-				if (currentBlockText.toLowerCase().includes("lead committee")) {
+			const currentBlockText = currentBlock.textContent.toLowerCase()
+			if (currentBlockIsHeading && currentBlockText.includes("committee")) {
+				if (currentBlockText.includes("lead committee")) {
 					consideringBody = leadCommittee
 				} else {
-					consideringBody = currentBlockText
+					for (const [key, value] of cmtAbbrsDictionary.entries()) {
+						if (currentBlockText.includes(value.toLowerCase())) {
+							consideringBody = value
+							break
+						}
+					}
 				}
 				break
 			}
@@ -572,12 +592,6 @@ function formatAsIsoDateLocal(date) {
 	const mm = String(date.getMonth() + 1).padStart(2, '0'); // 0-based month
 	const dd = String(date.getDate()).padStart(2, '0');
 	return `${yyyy}-${mm}-${dd}`;
-}
-
-function getStageDeprecated(element) {
-// looks back up the DOM to work out which bill stage an element is within
-	const stageAncestor = element.closest('[id^="target-"]');
-	return stageAncestor ? stageAncestor.id.split("-")[1].trim() : null;
 }
 
 function getBillNumSuffix(stage, displayName) {
@@ -632,186 +646,3 @@ async function returnReportPageData(link) {
 	const doc = parser.parseFromString(html, "text/html");
 	console.log(doc);
 }
-
-
-
-/*
-async function scrapeData() {
-	if (!htmlContent) {
-		alert("Please load an HTML file first.")
-		return
-	}
-	const parser = new DOMParser()
-	const doc = parse.parseFromString(htmlContent, 'text/html')
-	// get bill number
-	const billNumber = await findBillReferenceByTitle(billTitle)
-	// get lead committee
-	leadCommittee = "Unknown Committee"
-	const paras = doc.querySelectorAll('p')
-	for (let p of paras) {
-		const text = p.textContent.trim()
-		if (text.includes("The lead committee for this Bill is")) {
-			leadCommmittee = p.querySelector('a').textContent
-			break
-		}
-	}
-	const results = []
-	let link = ""
-	let date = ""
-	let reference = ""
-	let displayName = ""
-	let url = ""
-	let stage = ""
-	// get official report entries
-	let elementsOfInterest = doc.querySelectorAll(`div.bills-date-link-block`)
-	elementsOfInterest.forEach(element => {
-		// get the bill stage
-		stage = getStage(element)
-	}
-}
-*/
-async function scrapeDataDeprecated() {
-// core scraping function for the bill's page
-	if (!htmlContent) {
-		alert("Please load an HTML file first.");
-		return;
-	}
-
-	const parser = new DOMParser();
-	const doc = parser.parseFromString(htmlContent, 'text/html');
-	const billTitle = doc.querySelector('title').textContent.split("|")[0].trim();
-	// scrape common values: bill number & lead committee
-	const billNumber = await findBillReferenceByTitle(billTitle);
-	leadCommittee = "Unknown Committee";
-	const paras = doc.querySelectorAll('p');
-	for (let p of paras) {
-		const text = p.textContent.trim();
-		if (text.includes("The lead committee for this Bill is")) {
-			leadCommittee = p.querySelector('a').textContent;
-			break;
-		}
-	}
-	/* get all blocks of interest as an array:
-			committee proceedings: bills-date-link-block
-			formal bill docs: span.link-block
-			committee reports: a[href^= ... */
-	const blocks = doc.querySelectorAll(`
-			div.bills-date-link-block, 
-			span.link-block,
-			a[href^="https://digitalpublications.parliament.scot/Committees/Report/"]
-		`);
-	// declare key variables
-	const results = [];
-	let link = "" // the scraped hyperlink to the OR, formal bill doc or committee report
-	let date = "" // date of proceedings or publication
-	let reference = "" // citation text for col 2, follows SP official guide to citations
-	let displayName = "" // descriptor for col 1
-	let url = "" // the url to put in col 2
-	// loop all blocks of interest
-	blocks.forEach(block => {
-		// get the bill stage for the current block
-		const stage = getStage(block);
-		// handle commmittee reports
-		if (block.tagName.toLowerCase() === "a") {
-			url = block.getAttribute('href');
-		 // returnReportPageData(url);
-			date = '?';
-			reference = block.getAttribute('href');
-			displayName = 'Committee report';
-			results.push({
-				stage,
-				displayName,
-				date,
-				url,
-				reference
-			})
-			return;	
-		}
-		const link = block.querySelector('a');
-		if (!link) return;
-		const displayText = link.textContent.trim();
-		url = link.href;
-		let wrongDomain = ""
-		if (url.indexOf('-/media') != -1) {
-			wrongDomain = url.substring(0, url.indexOf('/-/media'))
-			url = url.replace(wrongDomain, "https://www.parliament.scot")
-		} else if (url.indexOf('/official-report/') != -1) {
-			wrongDomain = url.substring(0, url.indexOf('/chamber-and-committees'))
-			url = url.replace(wrongDomain, "https://www.parliament.scot")
-		}
-		// Extract a readable date (e.g., "28 June 2022")
-		const dateMatch = block.textContent.match(/\d{1,2} \w+ \d{4}/);
-		const dateObj = new Date(dateMatch);
-		date = dateObj ? formatAsIsoDateLocal(dateObj) : null;
-		// handle bill documents
-		if (block.className === 'link-block') {
-			// only pull in certain documents
-			const billDocsKeywords = [
-				"Explanatory Notes",
-				"Policy Memorandum",
-				"Financial Memorandum",
-				"Delegated Powers Memorandum",
-				"Groupings",
-				"Marshalled List",
-				"Bill as introduced",
-				"Bill as amended",
-				"Bill as passed"
-				]
-			const matchedKnownDoc =  billDocsKeywords.some(keyword => displayText.includes(keyword));
-			if (!matchedKnownDoc) {
-				return;
-			}
-			// now sort out display name
-			// get rid of trailing bracketed material
-			displayName = displayText.replace(/\s*\([^()]*\)\s*$/, "");
-			// strip out name of bill for reference
-			let refDisplayName = displayName;
-			const billItselfNames = [
-				"Bill as introduced",
-				"Bill as amended",
-				"Bill as passed",
-			]
-			const billItself = billItselfNames.some(keyword => displayName.includes(keyword));
-			if (billItself) {
-				refDisplayName = "as " + displayName.split(" as")[1].trim();
-			}
-			// now sort out the reference
-			reference = "SP Bill " + billNumber;
-			if (stage > 1) {
-				reference += getBillNumSuffix(stage - 1,displayName);
-			}
-			const docSuffix = getSuffix(displayName);
-			if (docSuffix != null) {
-				reference += "-" + docSuffix
-			}
-			reference += " " + billTitle;
-			reference += " [" + refDisplayName.toLowerCase() + "] Session 6 (";
-			reference += dateObj.getFullYear() + ")";
-		}
-		// handle committee and chamber meetings
-		if (block.className === 'bills-date-link-block') {
-			if (url.indexOf("official-report") === -1) {
-				return;
-			}
-		// displayName & reference
-			const consideringBody = findConsideringBody(block,stage);
-			displayName = consideringBody + ", " + formatDateToLongString(date);
-			reference = "SP OR " + consideringBody + " " + formatDateToLongString(date); 
-		}
-		
-		const exists = results.some(d => d.displayName === displayName);
-		if (!exists) {
-			results.push({
-				stage,
-				displayName,
-				date,
-				url,
-				reference
-			})
-		};
-	});
-
-	// Display formatted JSON
-	document.getElementById('output').textContent = JSON.stringify(results, null, 2);
-}
-
